@@ -65,35 +65,77 @@ var Spells = function () {
 		document.getElementById("arcania").innerHTML = Math.round(100 * arcania) / 100;
 	};
 
+	function updateSpellDescriptions(spellbook) {
+		spellbook.forEach(spell => {
+			let potencyValue;
+			
+			// Determine the potency based on the spell id
+			switch(spell.id) {
+				case "cure":
+					potencyValue = curePotency(spell);
+					break;
+				case "fireball":
+					potencyValue = fireballPotency(spell);
+					break;
+				case "barrier":
+					potencyValue = barrierPotency(spell);
+					break;
+				case "aegis":
+					potencyValue = aegisPotency(spell);
+					break;
+				case "slow":
+					potencyValue = slowPotency(spell);
+					break;
+				case "rage":
+					potencyValue = ragePotency(spell);
+					break;
+				case "transmutation":
+					potencyValue = transmutationPotency(spell);
+					break;
+				case "shadowball":
+					potencyValue = shadowBallPotency(spell);
+					break;
+				default:
+					potencyValue = "N/A"; // Default or error handling
+			}
+	
+			// Replace the placeholder in the template with the actual potency value
+			if (spell.descriptionTemplate) {
+				spell.description = spell.descriptionTemplate.replace("{potency}", potencyValue);
+			}
+		});
+	}
+	
+
 	//Other Methods
-	var updateSpellDescriptions = function () {
-		for (var i = 0; i < spellbook.length; i++) {
-			if (spellbook[i].id == "cure") {
-				spellbook[i].description = "Call the powers of nature to heal yourself for " + curePotency(spellbook[i]) + " HP";
-			}
-			else if (spellbook[i].id == "fireball") {
-				spellbook[i].description = "Ignite mana around your hand and throw it. Deals " + fireballPotency(spellbook[i]) + " fire damage.";
-			}
-			else if (spellbook[i].id == "barrier") {
-				spellbook[i].description = "Condense mana around you to put up a barrier that will absorb " + barrierPotency(spellbook[i]) + " damage.";
-			}
-			else if (spellbook[i].id == "aegis") {
-				spellbook[i].description = "Call for heavenly protection and take no damage for " + aegisPotency(spellbook[i]) + " turns.";
-			}
-			else if (spellbook[i].id == "slow") {
-				spellbook[i].description = "Magically shackle your enemy, reducing its dexterity for " + slowPotency(spellbook[i]) + " points.";
-			}
-			else if (spellbook[i].id == "rage") {
-				spellbook[i].description = "Fill yourself with rage for " + ragePotency(spellbook[i]) + " turns. You deal 5x damage, however, you take 2x damage and cannot cast other spells.";
-			}
-			else if (spellbook[i].id == "transmutation") {
-				spellbook[i].description = "Give material form to the Arcania inside you. Transforms 100 Arcania into " + transmutationPotency(spellbook[i]) + " gold.";
-			}
-			else if (spellbook[i].id == "shadowball") {
-				spellbook[i].description = "Condense shadow energy into a sphere you can hurl into enemies. Deals " + shadowBallPotency(spellbook[i]) + " damage.";
-			}
-		}
-	};
+	// var updateSpellDescriptions = function () {
+	// 	for (var i = 0; i < spellbook.length; i++) {
+	// 		if (spellbook[i].id == "cure") {
+	// 			spellbook[i].description = "Call the powers of nature to heal yourself for " + curePotency(spellbook[i]) + " HP";
+	// 		}
+	// 		else if (spellbook[i].id == "fireball") {
+	// 			spellbook[i].description = "Ignite mana around your hand and throw it. Deals " + fireballPotency(spellbook[i]) + " fire damage.";
+	// 		}
+	// 		else if (spellbook[i].id == "barrier") {
+	// 			spellbook[i].description = "Condense mana around you to put up a barrier that will absorb " + barrierPotency(spellbook[i]) + " damage.";
+	// 		}
+	// 		else if (spellbook[i].id == "aegis") {
+	// 			spellbook[i].description = "Call for heavenly protection and take no damage for " + aegisPotency(spellbook[i]) + " turns.";
+	// 		}
+	// 		else if (spellbook[i].id == "slow") {
+	// 			spellbook[i].description = "Magically shackle your enemy, reducing its dexterity for " + slowPotency(spellbook[i]) + " points.";
+	// 		}
+	// 		else if (spellbook[i].id == "rage") {
+	// 			spellbook[i].description = "Fill yourself with rage for " + ragePotency(spellbook[i]) + " turns. You deal 5x damage, however, you take 2x damage and cannot cast other spells.";
+	// 		}
+	// 		else if (spellbook[i].id == "transmutation") {
+	// 			spellbook[i].description = "Give material form to the Arcania inside you. Transforms 100 Arcania into " + transmutationPotency(spellbook[i]) + " gold.";
+	// 		}
+	// 		else if (spellbook[i].id == "shadowball") {
+	// 			spellbook[i].description = "Condense shadow energy into a sphere you can hurl into enemies. Deals " + shadowBallPotency(spellbook[i]) + " damage.";
+	// 		}
+	// 	}
+	// };
 
 	var spellType = function (type) {
 		if (type === 0) {

@@ -11,7 +11,8 @@
         "nextLevel": 150,
         "baseNextLevel": 150,
         "level": 0,
-        "description": "A spell that heals minor wounds."
+        "description": "A spell that heals minor wounds.",
+        "descriptionTemplate": "Call the powers of nature to heal yourself for {potency} HP."
     },
     {
         "name": "Fireball",
@@ -25,7 +26,8 @@
         "nextLevel": 100,
         "baseNextLevel": 100,
         "level": 0,
-        "description": "Conjures a ball of fire to hurl at an enemy."
+        "description": "Conjures a ball of fire to hurl at an enemy.",
+        "descriptionTemplate": "Ignite mana around your hand and throw it. Deals {potency} fire damage."
     },
     {
         "name": "Transmutation",
@@ -39,7 +41,8 @@
         "nextLevel": 500,
         "baseNextLevel": 500,
         "level": 0,
-        "description": "Alters the essence of objects or beings."
+        "description": "Alters the essence of objects or beings.",
+        "descriptionTemplate": "Give material form to the Arcania inside you. Transforms 100 Arcania into {potency} gold."
     },
     {
         "name": "Barrier",
@@ -53,7 +56,8 @@
         "nextLevel": 1000,
         "baseNextLevel": 1000,
         "level": 0,
-        "description": "Creates a magical shield for protection."
+        "description": "Creates a magical shield for protection.",
+        "descriptionTemplate": "Condense mana around you to put up a barrier that will absorb {potency} damage."
     },
     {
         "name": "Slow",
@@ -67,7 +71,8 @@
         "nextLevel": 4000,
         "baseNextLevel": 4000,
         "level": 0,
-        "description": "Reduces the target's speed significantly."
+        "description": "Reduces the target's speed significantly.",
+        "descriptionTemplate": "Magically shackle your enemy, reducing its dexterity for {potency} points."
     },
     {
         "name": "Rage",
@@ -81,7 +86,8 @@
         "nextLevel": 12500,
         "baseNextLevel": 12500,
         "level": 0,
-        "description": "Boosts the caster's strength temporarily."
+        "description": "Boosts the caster's strength temporarily.",
+        "descriptionTemplate": "Fill yourself with rage for {potency} turns. You deal 5x damage, however, you take 2x damage and cannot cast other spells."
     },
     {
         "name": "Shadow Ball",
@@ -95,7 +101,8 @@
         "nextLevel": 1500,
         "baseNextLevel": 1500,
         "level": 0,
-        "description": "Hurls a sphere of dark energy at a foe."
+        "description": "Hurls a sphere of dark energy at a foe.",
+        "descriptionTemplate": "Condense shadow energy into a sphere you can hurl into enemies. Deals {potency} damage."
     },
     {
         "name": "Aegis",
@@ -109,6 +116,7 @@
         "nextLevel": 50000,
         "baseNextLevel": 50000,
         "level": 0,
-        "description": "Summons a powerful barrier to protect the entire party."
+        "description": "Summons a powerful barrier to protect the entire party.",
+        "descriptionTemplate": "Call for heavenly protection and take no damage for {potency} turns."
     }
 ]
