@@ -1,3 +1,3 @@
 @echo off
 echo Starting BrowserSync...
-browser-sync start --server --directory --files "**/*"
+browser-sync start --server --files "**/*"

@@ -1,217 +1,201 @@
-var Tower = function() {
-	var lastBossDefeated = 0;
-	var bossFound = false;
-	var floors = [];
+class Tower {
+    constructor() {
+        this.lastBossDefeated = 0;
+        this.bossFound = false;
+        this.floors = this.initializeFloors();
+    }
 
-	for (var i = 0; i < monsters.getMonsterList().length; i++) {
-		if (i === 0) {
-			floors.push({size: 100, explored: 100, canAdvance: true, stairsPosition: 0, monsterDensity: 0});
+    initializeFloors() {
+        const monsterList = monsters.getMonsterList();
+        return monsterList.map((_, index) => index === 0 ? 
+            { size: 100, explored: 100, canAdvance: true, stairsPosition: 0, monsterDensity: 0 } : 
+            {
+                size: 2 * monsterList[index - 1].size,
+                explored: 0,
+                canAdvance: false,
+                stairsPosition: Math.floor(Math.random() * (2 * monsterList[index - 1].size)),
+                monsterDensity: Math.floor(10 + Math.random() * 40)
+            });
+    }
+
+    save() {
+        try {
+            const towerSave = JSON.stringify({
+                savedFloors: this.floors,
+                savedLastBossDefeated: this.lastBossDefeated,
+                savedBossFound: this.bossFound
+            });
+            localStorage.setItem("towerSave", towerSave);
+        } catch (error) {
+            console.error("Error saving tower data:", error);
+        }
+    }
+
+    load() {
+        try {
+            const towerSave = JSON.parse(localStorage.getItem("towerSave"));
+            if (towerSave) {
+                this.floors = towerSave.savedFloors || this.floors;
+                this.lastBossDefeated = towerSave.savedLastBossDefeated || this.lastBossDefeated;
+                this.bossFound = towerSave.savedBossFound || this.bossFound;
+            }
+        } catch (error) {
+            console.error("Error loading tower data:", error);
+        }
+    }
+
+    loadFloors(savedFloors) {
+        this.floors = savedFloors.map((floor, index) => ({
+            ...this.floors[index],
+            ...floor
+        }));
+    }
+
+    getFloorMonsterDensity(floor) {
+        return this.floors[floor].monsterDensity;
+    }
+
+    getMaxFloor() {
+        return this.floors.reduce((maxFloor, floor, i) => floor.explored === floor.size ? i : maxFloor, 0);
+    }
+
+    setBossFound(boolean) {
+        this.bossFound = boolean;
+    }
+
+    setLastBossDefeated(floor) {
+        this.lastBossDefeated = floor;
+    }
+
+    floorExplorationComplete(floor) {
+        return this.floors[floor].explored === this.floors[floor].size;
+    }
+
+    loadTowerScreen() {
+        const currentFloor = player.getCurrentFloor();
+        const floorElement = document.getElementById("floor");
+        const explorationPercentageElement = document.getElementById("explperc");
+        const floorBarElement = document.getElementById("floorbar");
+        const advanceButtonElement = document.getElementById("advbut");
+        const returnButtonElement = document.getElementById("retbut");
+
+        floorElement.innerHTML = currentFloor;
+        const exploredPercentage = (this.floors[currentFloor].explored / this.floors[currentFloor].size) * 100;
+        explorationPercentageElement.innerHTML = `${exploredPercentage.toFixed(2)}%`;
+        explorationPercentageElement.style.display = exploredPercentage < 5 ? "none" : "block";
+        floorBarElement.style.width = `${exploredPercentage}%`;
+
+        advanceButtonElement.innerHTML = this.generateAdvanceButtonHTML(currentFloor);
+		returnButtonElement.innerHTML = createButtonHTML({
+			text: "Previous Floor",
+			classes: "btn btn-default btn-block",
+			action: "tower.changeFloor(-1)",
+			condition: currentFloor !== 0
+		});
+
+    }
+
+	generateAdvanceButtonHTML(currentFloor) {
+		const monsterListLength = monsters.getMonsterList().length;
+		const canAdvance = this.floors[currentFloor].canAdvance && currentFloor < monsterListLength;
+		const isBossFloor = currentFloor % 10 === 0 && currentFloor > this.lastBossDefeated;
+		const bossFoundCondition = this.bossFound && isBossFloor;
+	
+		// Generate "Next Floor" button
+		if (canAdvance) {
+			return createButtonHTML({
+				text: "Next Floor",
+				classes: "btn btn-default btn-block",
+				action: "tower.changeFloor(1)"
+			});
 		}
-		else {
-			floors.push({size: Math.floor(2*floors[i-1].size),
-				explored: 0,
-				canAdvance: false,
-				stairsPosition: Math.floor(Math.random() * Math.floor(2*floors[i-1].size)),
-				monsterDensity: Math.floor(10 + Math.random()*40)});
+	
+		// Generate "Fight Floor Boss" button
+		if (bossFoundCondition) {
+			return createButtonHTML({
+				text: "Fight Floor Boss",
+				classes: "btn btn-danger btn-block",
+				action: "tower.startBossBattle()"
+			});
 		}
+	
+		// Default case, no button
+		return '';
 	}
 
-	var self = this;
-	//Save Method
-	self.save = function() {
-		var towerSave = {
-			savedFloors: floors,
-			savedLastBossDefeated: lastBossDefeated,
-			savedBossFound: bossFound
-		};
-		localStorage.setItem("towerSave",JSON.stringify(towerSave));
-	};
+    startBossBattle() {
+        if (!player.getInBattle()) {
+            monsters.setInstancedMonster(monsters.getBossMonster((player.getCurrentFloor() / 10) - 1));
+            monsters.setInBossBattle(true);
+            monsters.battle(monsters.getInstancedMonster(), false);
+        }
+    }
 
-	//Load Method
-	self.load = function() {
-		var towerSave = JSON.parse(localStorage.getItem("towerSave"));
-		if (towerSave) {
-			if (towerSave.savedFloors !== undefined) {
-				loadFloors(towerSave.savedFloors);
-			}
-			if (towerSave.savedLastBossDefeated !== undefined) {
-				lastBossDefeated = towerSave.savedLastBossDefeated;
-			}
-			if (towerSave.savedBossFound !== undefined) {
-				bossFound = towerSave.savedBossFound;
-			}
-		}
-	};
+    bossDefeated() {
+        this.floors[player.getCurrentFloor()].canAdvance = true;
+        this.loadTowerScreen();
+    }
 
-	var loadFloors = function(savedFloors) {
-		for (var i = 0; i < savedFloors.length; i++) {
-			if (i == floors.length) {
-				break;
-			}
-			if (savedFloors[i].explored !== undefined) {
-				floors[i].explored = savedFloors[i].explored;
-			}
-			if (savedFloors[i].canAdvance !== undefined) {
-				floors[i].canAdvance = savedFloors[i].canAdvance;
-			}
-			if (savedFloors[i].stairsPosition !== undefined) {
-				floors[i].stairsPosition = savedFloors[i].stairsPosition;
-			}
-			if (savedFloors[i].monsterDensity !== undefined) {
-				floors[i].monsterDensity = savedFloors[i].monsterDensity;
-			}
-		}
-	};
+    changeFloor(floorsChanged) {
+        if (!player.getInBattle()) {
+            player.setCurrentFloor(player.getCurrentFloor() + floorsChanged);
+            this.loadTowerScreen();
+            player.loadRestButton();
+            player.loadExploreButton();
+        }
+    }
 
-	//Getters
-	self.getFloorMonsterDensity = function(floor) {
-		return floors[floor].monsterDensity;
-	};
-
-    self.getMaxFloor = function() {
-        var maxFloor = 0;
-        for (var i = 0; i < floors.length; i++) {
-            if (floors[i].explored === floors[i].size) {
-                maxFloor = i;
+    exploreFloor() {
+        const currentFloor = player.getCurrentFloor();
+        player.setManaCurrentValue(player.getManaCurrentValue() + characterBuffs.get('ManaPerSecond'));
+        if (!this.floorExplorationComplete(currentFloor)) {
+            let explored = characterBuffs.get('ExplorationSpeedMultiplier') * ((player.getSpeedLevel() + player.getSpeedBonus()) / 10);
+            const explorationLeft = this.floors[currentFloor].size - this.floors[currentFloor].explored;
+            if (explored > explorationLeft) {
+                explored = explorationLeft;
             }
-        };
-        return maxFloor;
-    };
+            this.floors[currentFloor].explored += explored;
+            if (this.hasFoundStairs(currentFloor) && !this.floors[currentFloor].canAdvance && currentFloor < monsters.getMonsterList().length) {
+                if (currentFloor % 10 !== 0) {
+                    this.floors[currentFloor].canAdvance = true;
+                } else {
+                    this.bossFound = true;
+                }
+            }
+            player.setSpeedExperience(player.getSpeedExperience() + 5 * explored * characterBuffs.get('LevelingSpeedMultiplier') / characterBuffs.get('ExplorationSpeedMultiplier'));
+            this.loadTowerScreen();
+            if (!this.checkFloorEvent()) {
+                monsters.battleChance(false);
+            }
+        } else {
+            monsters.battleChance(true);
+        }
+    }
 
-	//Setters
-	self.setBossFound = function(boolean) {
-		bossFound = boolean;
-	};
+    hasFoundStairs(currentFloor) {
+        return this.floors[currentFloor].explored > this.floors[currentFloor].stairsPosition;
+    }
 
-	self.setLastBossDefeated = function(floor) {
-		lastBossDefeated = floor;
-	};
-
-	//Other Methods
-	self.floorExplorationComplete = function(floor) {
-		if (floors[floor].size == floors[floor].explored) {
-			return true;
-		}
-		return false;
-	};
-
-	self.loadTowerScreen = function() {
-		var currentFloor = player.getCurrentFloor();
-		document.getElementById("floor").innerHTML = currentFloor;
-		document.getElementById("explperc").innerHTML = Math.round(100*(floors[currentFloor].explored/floors[currentFloor].size)*100)/100 + "%";
-		if ((Math.round(100*(floors[currentFloor].explored/floors[currentFloor].size)*100)/100) < 5) {
-			document.getElementById("explperc").style.display = "none";
-		} else {
-			document.getElementById("explperc").style.display = "block";
-		}
-		document.getElementById("floorbar").style.width = 100*(floors[currentFloor].explored/floors[currentFloor].size) + "%";
-		if (floors[currentFloor].canAdvance && currentFloor < monsters.getMonsterList().length) {
-			document.getElementById("advbut").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.changeFloor(1)">Next Floor</button>';
-		}
-		else if (bossFound) {
-			if (currentFloor % 10 !== 0) {
-				document.getElementById("advbut").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.changeFloor(1)">Next Floor</button>';
-			}
-			else {
-				if (currentFloor <= lastBossDefeated) {
-					document.getElementById("advbut").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.changeFloor(1)">Next Floor</button>';
-				}
-				else {
-					document.getElementById("advbut").innerHTML = '<button class="btn btn-danger btn-block" onClick="tower.startBossBattle()">Fight Floor Boss</button>';
-				}
-			}
-		}
-		else {
-			document.getElementById("advbut").innerHTML = '';
-		}
-		if (currentFloor !== 0) {
-			document.getElementById("retbut").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.changeFloor(-1)">Previous Floor</button>';
-		}
-		else {
-			document.getElementById("retbut").innerHTML = '';
-		}
-	};
-
-	self.startBossBattle = function() {
-		if (!player.getInBattle()) {
-			monsters.setInstancedMonster(monsters.getBossMonster((player.getCurrentFloor()/10)-1));
-			monsters.setInBossBattle(true);
-			monsters.battle(monsters.getInstancedMonster(), false);
-		}
-	};
-
-	self.bossDefeated = function() {
-		floors[player.getCurrentFloor()].canAdvance = true;
-		self.loadTowerScreen();
-	};
-
-	self.changeFloor = function(floorsChanged) {
-		if (!player.getInBattle()) {
-			player.setCurrentFloor(player.getCurrentFloor() + floorsChanged);
-			self.loadTowerScreen();
-			player.loadRestButton();
-			player.loadExploreButton();
-		}
-	};
-
-	var hasFoundStairs = function(currentFloor) {
-		if (floors[currentFloor].explored > floors[currentFloor].stairsPosition) {
-			return true;
-		}
-		return false;
-	};
-
-	self.exploreFloor = function() {
-		var currentFloor = player.getCurrentFloor();
-		player.setManaCurrentValue(player.getManaCurrentValue() + characterBuffs.get('ManaPerSecond'));
-		if (!self.floorExplorationComplete(currentFloor)) {
-			var explored = characterBuffs.get('ExplorationSpeedMultiplier') * ((player.getSpeedLevel() + player.getSpeedBonus())/10);
-			var explorationLeft = floors[currentFloor].size - floors[currentFloor].explored;
-			if (explored > explorationLeft) {
-				explored = explorationLeft;
-			}
-			floors[currentFloor].explored += explored;
-			if (hasFoundStairs(currentFloor) && !floors[currentFloor].canAdvance && currentFloor < monsters.getMonsterList().length) {
-				if (currentFloor % 10 !== 0) {
-					floors[currentFloor].canAdvance = true;
-				}
-				else {
-					bossFound = true;
-				}
-			}
-			player.setSpeedExperience(player.getSpeedExperience() + 5*explored*characterBuffs.get('LevelingSpeedMultiplier')/characterBuffs.get('ExplorationSpeedMultiplier'));
-			self.loadTowerScreen();
-			if (!checkFloorEvent()) {
-				monsters.battleChance(false);
-			}
-		}
-		else {
-			monsters.battleChance(true);
-		}
-	};
-
-	var checkFloorEvent = function() {
-		var eventChance = 10;
-		var eventRoll = Math.floor(Math.random()*100);
+	checkFloorEvent() {
+		const eventChance = 10;
+		let eventRoll = Math.floor(Math.random() * 100);
 		if (eventRoll <= eventChance) {
-			eventRoll = Math.random()*100;
+			eventRoll = Math.random() * 100;
 			if (eventRoll < 5) {
-				var rarity = player.getCurrentFloor() + Math.floor(Math.random() * player.getCurrentFloor());
-				document.getElementById("floorlog").innerHTML = "You turn a corner, finding a treasure chest."
+				const rarity = player.getCurrentFloor() + Math.floor(Math.random() * player.getCurrentFloor());
+				logToFloor("You turn a corner, finding a treasure chest.");
 				inventory.findChest(rarity);
-			}
-			else {
-				var gold = Math.round(Math.random() * 50 * player.getCurrentFloor()) + 1;
-				document.getElementById("floorlog").innerHTML = "You find the body of another adventurer. You check their pockets, obtaining " + gold + " gold.";
+			} else {
+				const gold = Math.round(Math.random() * 50 * player.getCurrentFloor()) + 1;
+				logToFloor(`You find the body of another adventurer. You check their pockets, obtaining ${gold} gold.`);
 				inventory.setGold(inventory.getGold() + gold);
 			}
 			return true;
-		}
-		else {
-			document.getElementById("floorlog").innerHTML = "You walk around for a bit, finding nothing of interest."
+		} else {
+			logToFloor("You walk around for a bit, finding nothing of interest.");
 			return false;
 		}
-	};
-};
+	}
+}
 
-var tower = new Tower();
+const tower = new Tower();

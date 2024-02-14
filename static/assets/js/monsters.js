@@ -177,27 +177,27 @@ var Monsters = function() {
 
     self.loadMonsterInfo = function(monster) {
         if (monster !== undefined) {
-            document.getElementById("monstername").innerHTML = monster.name;
-            document.getElementById("monsterhp").innerHTML = Math.round(monster.currentHealth);
-            document.getElementById("monsterstr").innerHTML = monster.strength;
-            document.getElementById("monsterdex").innerHTML = monster.dexterity;
-            document.getElementById("monstercon").innerHTML = monster.constitution;
-            document.getElementById("monsterbar").style.width = 100*(monster.currentHealth/monster.maximumHealth) + "%";
+            document.getElementById("monsterName").innerHTML = monster.name;
+            document.getElementById("monsterHp").innerHTML = Math.round(monster.currentHealth);
+            document.getElementById("monsterStr").innerHTML = monster.strength;
+            document.getElementById("monsterDex").innerHTML = monster.dexterity;
+            document.getElementById("monsterCon").innerHTML = monster.constitution;
+            document.getElementById("monsterBar").style.width = 100*(monster.currentHealth/monster.maximumHealth) + "%";
             if (!inBossBattle) {
-                document.getElementById("combatlog").innerHTML = "You are attacked by a " + monster.name + "!<br>";
+                document.getElementById("combatLog").innerHTML = "You are attacked by a " + monster.name + "!<br>";
             }
             else {
-                document.getElementById("combatlog").innerHTML = "You challenge a floor boss! You begin fighting " + monster.name + "!<br>";
+                document.getElementById("combatLog").innerHTML = "You challenge a floor boss! You begin fighting " + monster.name + "!<br>";
             }
             player.setInBattle(true);
         }
         else {
-            document.getElementById("monstername").innerHTML = "None";
-            document.getElementById("monsterhp").innerHTML = "0";
-            document.getElementById("monsterstr").innerHTML = "0";
-            document.getElementById("monsterdex").innerHTML = "0";
-            document.getElementById("monstercon").innerHTML = "0";
-            document.getElementById("monsterbar").style.width = "0%";
+            document.getElementById("monsterName").innerHTML = "None";
+            document.getElementById("monsterHp").innerHTML = "0";
+            document.getElementById("monsterStr").innerHTML = "0";
+            document.getElementById("monsterDex").innerHTML = "0";
+            document.getElementById("monsterCon").innerHTML = "0";
+            document.getElementById("monsterBar").style.width = "0%";
         }
     };
 
@@ -214,7 +214,7 @@ var Monsters = function() {
         else {
             var isDead = false;
             if (!spellCast) {
-                document.getElementById("combatlog").innerHTML = '';
+                document.getElementById("combatLog").innerHTML = '';
                 if (characterBuffs.get('CastCureInBattle') && player.getHealthCurrentValue() <= player.getHealthMaximumValue()/2) {
                     if (!spells.castSpell("cure")) {
                         isDead = playerAttacks(monster);
@@ -243,15 +243,15 @@ var Monsters = function() {
         if (damage >= monster.currentHealth) {
             damage = monster.currentHealth;
         }
-        document.getElementById("combatlog").innerHTML += "You dealt " + Math.round(damage) + " damage to the " + monster.name + ".<br>";
+        document.getElementById("combatLog").innerHTML += "You dealt " + Math.round(damage) + " damage to the " + monster.name + ".<br>";
         player.gainExperience(monster, true);
         return self.monsterTakeDamage(monster, damage);
     };
 
     self.monsterTakeDamage = function(monster, damage) {
         monster.currentHealth -= damage;
-        document.getElementById("monsterhp").innerHTML = Math.floor(monster.currentHealth);
-        document.getElementById("monsterbar").style.width = 100*(monster.currentHealth/monster.maximumHealth) + "%";
+        document.getElementById("monsterHp").innerHTML = Math.floor(monster.currentHealth);
+        document.getElementById("monsterBar").style.width = 100*(monster.currentHealth/monster.maximumHealth) + "%";
         if (monster.currentHealth <= 0) {
             monsterDeath(monster);
             return true;
@@ -262,7 +262,7 @@ var Monsters = function() {
     var monsterDeath = function(monster) {
         player.setInBattle(false);
         if (!inBossBattle) {
-            document.getElementById("combatlog").innerHTML += "You have defeated the " + monster.name + "!<br>";
+            document.getElementById("combatLog").innerHTML += "You have defeated the " + monster.name + "!<br>";
             if (Math.floor(Math.random()*100) < 10) {
                 monsterCrystalDrop(monster);
                 inventory.updateInventory();
@@ -270,7 +270,7 @@ var Monsters = function() {
             updateMonsterKilled(monster.name);
         }
         else {
-            document.getElementById("combatlog").innerHTML += "You have defeated a floor boss! " + monster.name + " recognizes your strength and allows you to advance.";
+            document.getElementById("combatLog").innerHTML += "You have defeated a floor boss! " + monster.name + " recognizes your strength and allows you to advance.";
             tower.setBossFound(false);
             tower.setLastBossDefeated(player.getCurrentFloor());
             tower.bossDefeated();
@@ -300,7 +300,7 @@ var Monsters = function() {
         else if (type == 4) {
             inventory.createCrystal("Magic", experience);
         }
-        document.getElementById("combatlog").innerHTML += "The " + monster.name + " has left an experience crystal behind!<br>";
+        document.getElementById("combatLog").innerHTML += "The " + monster.name + " has left an experience crystal behind!<br>";
     }
 
     var updateMonsterKilled = function(name) {
@@ -336,27 +336,27 @@ var Monsters = function() {
             if (barrier > 0) {
                 if (barrier >= damage) {
                     characterBuffs.set('BarrierLeft', barrier - damage);
-                    document.getElementById("combatlog").innerHTML += "Your barrier absorbed " + Math.round(damage) + " damage from " + monster.name + "'s attack.<br>";
+                    document.getElementById("combatLog").innerHTML += "Your barrier absorbed " + Math.round(damage) + " damage from " + monster.name + "'s attack.<br>";
                     buffs.updateTemporaryBuffs(false);
                     return false;
                 }
                 else {
-                    document.getElementById("combatlog").innerHTML += "Your barrier absorbed " + Math.round(barrier) + " damage from " + monster.name + "'s attack.<br>";
-                    document.getElementById("combatlog").innerHTML += "Your barrier has shattered.<br>";
+                    document.getElementById("combatLog").innerHTML += "Your barrier absorbed " + Math.round(barrier) + " damage from " + monster.name + "'s attack.<br>";
+                    document.getElementById("combatLog").innerHTML += "Your barrier has shattered.<br>";
                     damage -= barrier;
                     characterBuffs.set('BarrierLeft', 0);
                     buffs.updateTemporaryBuffs(false);
                 }
             }
             player.setHealthCurrentValue(player.getHealthCurrentValue() - damage);
-            document.getElementById("combatlog").innerHTML += "You took " + Math.round(damage) + " damage from the " + monster.name + "'s attack.<br>";
+            document.getElementById("combatLog").innerHTML += "You took " + Math.round(damage) + " damage from the " + monster.name + "'s attack.<br>";
             if (player.getHealthCurrentValue() === 0) {
                 player.death(monster);
                 return true;
             }
         }
         else {
-            document.getElementById("combatlog").innerHTML += "Aegis absorbed " + Math.round(damage) + " damage from " + monster.name + "'s attack.<br>";
+            document.getElementById("combatLog").innerHTML += "Aegis absorbed " + Math.round(damage) + " damage from " + monster.name + "'s attack.<br>";
         }
         player.gainExperience(monster, false);
         return false;
@@ -427,10 +427,10 @@ var Monsters = function() {
 
     self.runAway = function() {
         if (player.getInBattle()) {
-            document.getElementById("combatlog").innerHTML = "";
+            document.getElementById("combatLog").innerHTML = "";
             var runRoll = Math.random() * (instancedMonster.strength + instancedMonster.dexterity + instancedMonster.constitution);
             if (runRoll < player.getSpeedLevel()) {
-                document.getElementById("combatlog").innerHTML += "You escaped from the battle against " + instancedMonster.name + ".";
+                document.getElementById("combatLog").innerHTML += "You escaped from the battle against " + instancedMonster.name + ".";
                 self.loadMonsterInfo();
                 player.setSpeedExperience(player.getSpeedExperience() + runRoll);
                 player.setInBattle(false);
@@ -438,7 +438,7 @@ var Monsters = function() {
                 player.loadRestButton();
             }
             else {
-                document.getElementById("combatlog").innerHTML += "You failed to run away.<br>";
+                document.getElementById("combatLog").innerHTML += "You failed to run away.<br>";
                 self.battle(instancedMonster, true);
             }
         }

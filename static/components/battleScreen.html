@@ -1,0 +1,44 @@
+<section class="col-xs-12" id="battleScreen">
+    <div class="panel panel-default">
+        <div id="collapseBattle" class="panel-collapse collapse in">
+            <article class="panel-body">
+                <div class="row">
+                    <aside class="col-xs-3">
+                        <div class="monster-stats">
+                            Monster: <span id="monsterName">None</span><br>
+                            STR: <span id="monsterStr">0</span><br>
+                            DEX: <span id="monsterDex">0</span><br>
+                            CON: <span id="monsterCon">0</span>
+                        </div>
+                    </aside>
+                    <div class="col-xs-9">
+                        <div class="monster-health">
+                            <div class="progress">
+                                <div id="monsterBar" class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                    <span id="monsterHp">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="battle-actions">
+                            <div class="col-xs-6">
+                                <button class="btn btn-danger btn-block" onClick="monsters.attackMelee()">Fight</button>
+                            </div>
+                            <div class="col-xs-6">
+                                <button class="btn btn-warning btn-block" onClick="monsters.runAway()">Run</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+<section class="col-xs-12" id="logScreen">
+    <footer class="panel combat-panel">
+        <div class="panel-collapse collapse in">
+            <div class="combat-log">
+                <div class="col-xs-12"><span id="combatLog"></span></div>
+            </div>
+        </div>
+    </footer>
+</section>

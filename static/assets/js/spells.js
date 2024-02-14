@@ -28,6 +28,7 @@ var Spells = function () {
 	};
 
 	var loadSpellbook = function (savedSpellbook) {
+		console.log("Loading spellbook");
 		var success = false;
 		for (var i = 0; i < savedSpellbook.length; i++) {
 			if (i == spellbook.length) {
@@ -66,6 +67,8 @@ var Spells = function () {
 	};
 
 	function updateSpellDescriptions(spellbook) {
+		console.log("Updating spell descriptions");
+		console.log(spellbook);
 		spellbook.forEach(spell => {
 			let potencyValue;
 			
@@ -105,37 +108,6 @@ var Spells = function () {
 			}
 		});
 	}
-	
-
-	//Other Methods
-	// var updateSpellDescriptions = function () {
-	// 	for (var i = 0; i < spellbook.length; i++) {
-	// 		if (spellbook[i].id == "cure") {
-	// 			spellbook[i].description = "Call the powers of nature to heal yourself for " + curePotency(spellbook[i]) + " HP";
-	// 		}
-	// 		else if (spellbook[i].id == "fireball") {
-	// 			spellbook[i].description = "Ignite mana around your hand and throw it. Deals " + fireballPotency(spellbook[i]) + " fire damage.";
-	// 		}
-	// 		else if (spellbook[i].id == "barrier") {
-	// 			spellbook[i].description = "Condense mana around you to put up a barrier that will absorb " + barrierPotency(spellbook[i]) + " damage.";
-	// 		}
-	// 		else if (spellbook[i].id == "aegis") {
-	// 			spellbook[i].description = "Call for heavenly protection and take no damage for " + aegisPotency(spellbook[i]) + " turns.";
-	// 		}
-	// 		else if (spellbook[i].id == "slow") {
-	// 			spellbook[i].description = "Magically shackle your enemy, reducing its dexterity for " + slowPotency(spellbook[i]) + " points.";
-	// 		}
-	// 		else if (spellbook[i].id == "rage") {
-	// 			spellbook[i].description = "Fill yourself with rage for " + ragePotency(spellbook[i]) + " turns. You deal 5x damage, however, you take 2x damage and cannot cast other spells.";
-	// 		}
-	// 		else if (spellbook[i].id == "transmutation") {
-	// 			spellbook[i].description = "Give material form to the Arcania inside you. Transforms 100 Arcania into " + transmutationPotency(spellbook[i]) + " gold.";
-	// 		}
-	// 		else if (spellbook[i].id == "shadowball") {
-	// 			spellbook[i].description = "Condense shadow energy into a sphere you can hurl into enemies. Deals " + shadowBallPotency(spellbook[i]) + " damage.";
-	// 		}
-	// 	}
-	// };
 
 	var spellType = function (type) {
 		if (type === 0) {
@@ -195,7 +167,7 @@ var Spells = function () {
 		for (var i = 0; i <= 3; i++) {
 			document.getElementById("spellbook" + i).innerHTML = '';
 		}
-		updateSpellDescriptions();
+		updateSpellDescriptions(spellbook);
 		for (i = 0; i < spellbook.length; i++) {
 			if (player.getMagicLevel() >= spellbook[i].requiredMagic && spellbook[i].learned === false) {
 				var spellColor = spellType(spellbook[i].type);
@@ -208,7 +180,7 @@ var Spells = function () {
 					+ spellbook[i].id + 'arcaniacostall">0</span></p></div></div>';
 
 				document.getElementById("spellbook" 
-				+ spellbook[i].type).innerHTML += '<div class="row"><div class="col-xs-6"><button class="btn ' 
+				+ spellbook[i].type).innerHTML += '<div class="row"><div class="col-xs-12"><button class="btn ' 
 				+ spellColor + ' btn-block" data-toggle="tooltip" data-placement="top" title="' 
 				+ spellbook[i].description + '" onClick="spells.buySpell(\'' 
 				+ spellbook[i].id + '\')"> Buy ' 
@@ -218,7 +190,7 @@ var Spells = function () {
 			}
 			else if (spellbook[i].learned === true) {
 				var spellColor = spellType(spellbook[i].type);
-				document.getElementById("spellbook").innerHTML += '<div class="row"><div class="col-xs-6"><button class="btn ' 
+				document.getElementById("spellbook").innerHTML += '<div class="row"><div class="col-xs-12"><button class="btn ' 
 				+ spellColor + ' btn-block" data-toggle="tooltip" data-placement="top" title="' 
 				+ spellbook[i].description + '" onClick="spells.castSpell(\'' 
 				+ spellbook[i].id + '\')">' + spellbook[i].name + ' <sup><span id="'+ spellbook[i].id +'levelall">0</span></sup></button>';
@@ -334,8 +306,8 @@ var Spells = function () {
 			}
 			player.setHealthCurrentValue(currentHealth + cureValue);
 			if (player.getInBattle()) {
-				document.getElementById("combatlog").innerHTML = '';
-				document.getElementById("combatlog").innerHTML += "You healed yourself for " + Math.round(cureValue) + " HP with Cure.<br>";
+				document.getElementById("combatLog").innerHTML = '';
+				document.getElementById("combatLog").innerHTML += "You healed yourself for " + Math.round(cureValue) + " HP with Cure.<br>";
 				monsters.battle(monsters.getInstancedMonster(), true);
 			}
 			return true;
@@ -359,8 +331,8 @@ var Spells = function () {
 			if (monster.currentHealth <= fireballDamage) {
 				fireballDamage = monster.currentHealth;
 			}
-			document.getElementById("combatlog").innerHTML = '';
-			document.getElementById("combatlog").innerHTML += "Your fireball hit the " + monster.name + " for " + Math.floor(fireballDamage) + " damage.<br>";
+			document.getElementById("combatLog").innerHTML = '';
+			document.getElementById("combatLog").innerHTML += "Your fireball hit the " + monster.name + " for " + Math.floor(fireballDamage) + " damage.<br>";
 			if (!monsters.monsterTakeDamage(monsters.getInstancedMonster(), fireballDamage)) {
 				monsters.battle(monsters.getInstancedMonster(), true);
 			}
@@ -384,8 +356,8 @@ var Spells = function () {
 			characterBuffs.set('BarrierLeft', barrierValue);
 			buffs.updateTemporaryBuffs(false);
 			if (player.getInBattle()) {
-				document.getElementById("combatlog").innerHTML = '';
-				document.getElementById("combatlog").innerHTML += "You created a magical barrier.<br>";
+				document.getElementById("combatLog").innerHTML = '';
+				document.getElementById("combatLog").innerHTML += "You created a magical barrier.<br>";
 				monsters.battle(monsters.getInstancedMonster(), true);
 			}
 			return true;
@@ -407,8 +379,8 @@ var Spells = function () {
 			characterBuffs.set('AegisTimeLeft', aegisPotency(aegis));
 			buffs.updateTemporaryBuffs(false);
 			if (player.getInBattle()) {
-				document.getElementById("combatlog").innerHTML = '';
-				document.getElementById("combatlog").innerHTML += "You summon the heavenly shield, Aegis.<br>";
+				document.getElementById("combatLog").innerHTML = '';
+				document.getElementById("combatLog").innerHTML += "You summon the heavenly shield, Aegis.<br>";
 				monsters.battle(monsters.getInstancedMonster(), true);
 			}
 			return true;
@@ -433,9 +405,9 @@ var Spells = function () {
 				slowEffect = monster.dexterity - 1;
 			}
 			monster.dexterity -= slowEffect;
-			document.getElementById("monsterdex").innerHTML = monster.dexterity;
-			document.getElementById("combatlog").innerHTML = '';
-			document.getElementById("combatlog").innerHTML += "You have cast slow on the " + monster.name + ". Its dexterity has been lowered by " + slowEffect + ".<br>";
+			document.getElementById("monsterDex").innerHTML = monster.dexterity;
+			document.getElementById("combatLog").innerHTML = '';
+			document.getElementById("combatLog").innerHTML += "You have cast slow on the " + monster.name + ". Its dexterity has been lowered by " + slowEffect + ".<br>";
 			monsters.setInstancedMonster(monster);
 			monsters.battle(monsters.getInstancedMonster(), true);
 			return true;
@@ -456,8 +428,8 @@ var Spells = function () {
 		else {
 			characterBuffs.set('RageTimeLeft', ragePotency(rage));
 			buffs.updateTemporaryBuffs(false);
-			document.getElementById("combatlog").innerHTML = '';
-			document.getElementById("combatlog").innerHTML += "You have entered a state of frenzy!<br>";
+			document.getElementById("combatLog").innerHTML = '';
+			document.getElementById("combatLog").innerHTML += "You have entered a state of frenzy!<br>";
 			monsters.battle(monsters.getInstancedMonster(), true);
 			return true;
 		}
@@ -498,8 +470,8 @@ var Spells = function () {
 			if (monster.currentHealth <= shadowBallDamage) {
 				shadowBallDamage = monster.currentHealth;
 			}
-			document.getElementById("combatlog").innerHTML = '';
-			document.getElementById("combatlog").innerHTML += "Your shadow ball hit the " + monster.name + " for " + Math.floor(shadowBallDamage) + " damage.<br>";
+			document.getElementById("combatLog").innerHTML = '';
+			document.getElementById("combatLog").innerHTML += "Your shadow ball hit the " + monster.name + " for " + Math.floor(shadowBallDamage) + " damage.<br>";
 			if (!monsters.monsterTakeDamage(monsters.getInstancedMonster(), shadowBallDamage)) {
 				monsters.battle(monsters.getInstancedMonster(), true);
 			}

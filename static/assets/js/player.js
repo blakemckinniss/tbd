@@ -512,7 +512,7 @@ var Player = function() {
 		if (monsters.getInBossBattle()) {
 			monsters.setInBossBattle(false);
 		}
-		document.getElementById("combatlog").innerHTML += "You have been defeated by the " + monster.name + "!";
+		document.getElementById("combatLog").innerHTML += "You have been defeated by the " + monster.name + "!";
 		if (system.getIdleMode()) {
 			system.toggleIdle();
 		}
