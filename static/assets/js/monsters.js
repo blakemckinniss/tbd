@@ -202,10 +202,13 @@ var Monsters = function() {
     };
 
     self.battle = function(monster, spellCast) {
+        console.log("monster", monster)
+        console.log("battle started")
         if(!player.getInBattle()) {
+            console.log("battle started 2")
             player.setInBattle(true);
-            player.loadRestButton();
-            player.loadExploreButton();
+            // player.loadRestButton();
+            // player.loadExploreButton();
             self.loadMonsterInfo(monster);
             if (characterBuffs.get('CastFireballInBattle')) {
                 spells.castSpell("fireball");
@@ -369,7 +372,7 @@ var Monsters = function() {
         }
         else {
             var check = Math.random()*100;
-            if (check <= tower.getFloorMonsterDensity(player.getCurrentFloor())) {
+            if (check <= Math.floor(10 + Math.random()*40)) {
                 rollMonster();
                 return true;
             }
@@ -378,7 +381,7 @@ var Monsters = function() {
     };
 
     var rollMonster = function() {
-        var tier = Math.floor((player.getCurrentFloor()-1)/10);
+        var tier = Math.floor((1-1)/10);
         var monster = Math.floor(Math.random()*10);
         while(monster == 10) {
             monster = Math.floor(Math.random()*10);
@@ -389,7 +392,8 @@ var Monsters = function() {
 
     var createMonster = function(number) {
         var tempMonster = {name: "", currentHealth: 0, maximumHealth:0 , strength: 0, dexterity: 0, constitution: 0, status: 0};
-        var statPool = Math.round((player.getCurrentFloor() * 15) + Math.pow(1.1, player.getCurrentFloor() - 1) - 1);
+        var statPool = Math.round((1 * 15) + Math.pow(1.1, 1 - 1) - 1);
+        console.log("mosteter", monsterList[number])
         tempMonster.name = monsterList[number].name;
         tempMonster.strength++;
         tempMonster.dexterity++;

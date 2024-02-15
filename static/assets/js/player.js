@@ -1,6 +1,5 @@
 var Player = function() {
 	var name = "Crawler";
-
 	var health = {currentValue: 100, maximumValue: 100};
 	var mana = {currentValue: 50, maximumValue: 50};
 	var strength = {level: 5, experience: 0, nextLevel: 100, bonus: 0};
@@ -8,14 +7,10 @@ var Player = function() {
 	var constitution = {level: 5, experience: 0, nextLevel: 100, bonus: 0};
 	var speed = {level: 5, experience: 0, nextLevel: 100, bonus: 0};
 	var magic = {level: 5, experience: 0, nextLevel: 100, bonus: 0};
-
-	var currentFloor = 0;
-
+	var currentFloor = 1;
 	var inBattle = false;
 	var resting = false;
-
 	var self = this;
-	//Save Method
 	self.save = function() {
 		var playerSave = {
 			savedName: name,
@@ -31,141 +26,61 @@ var Player = function() {
 		};
 		localStorage.setItem("playerSave",JSON.stringify(playerSave));
 	};
-
-	//Load Method
 	self.load = function() {
 		var playerSave = JSON.parse(localStorage.getItem("playerSave"));
 		if (playerSave) {
-			if (playerSave.savedName !== undefined) {
-				name = playerSave.savedName;
-			}
-			else {
-				name = prompt("Please, enter your name:", "Crawler");
-			}
-			if (playerSave.savedHealth !== undefined) {
-				loadHealth(playerSave.savedHealth);
-			}
-			if (playerSave.savedMana !== undefined) {
-				loadMana(playerSave.savedMana);
-			}
-			if (playerSave.savedStrength !== undefined) {
-				loadStrength(playerSave.savedStrength);
-			}
-			if (playerSave.savedDexterity !== undefined) {
-				loadDexterity(playerSave.savedDexterity);
-			}
-			if (playerSave.savedConstitution !== undefined) {
-				loadConstitution(playerSave.savedConstitution);
-			}
-			if (playerSave.savedSpeed !== undefined) {
-				loadSpeed(playerSave.savedSpeed);
-			}
-			if (playerSave.savedMagic !== undefined) {
-				loadMagic(playerSave.savedMagic);
-			}
-			if (playerSave.savedCurrentFloor !== undefined) {
-				currentFloor = playerSave.savedCurrentFloor;
-			}
-			if (playerSave.savedInBattle !== undefined) {
-				inBattle = playerSave.savedInBattle;
-			}
-		}
-		else {
+			if (playerSave.savedName !== undefined) name = playerSave.savedName;
+			else name = prompt("Please, enter your name:", "Crawler");
+			if (playerSave.savedHealth !== undefined) loadHealth(playerSave.savedHealth);
+			if (playerSave.savedMana !== undefined) loadMana(playerSave.savedMana);
+			if (playerSave.savedStrength !== undefined) loadStrength(playerSave.savedStrength);
+			if (playerSave.savedDexterity !== undefined) loadDexterity(playerSave.savedDexterity);
+			if (playerSave.savedConstitution !== undefined) loadConstitution(playerSave.savedConstitution);
+			if (playerSave.savedSpeed !== undefined) loadSpeed(playerSave.savedSpeed);
+			if (playerSave.savedMagic !== undefined) loadMagic(playerSave.savedMagic);
+			if (playerSave.savedCurrentFloor !== undefined) currentFloor = playerSave.savedCurrentFloor;
+			if (playerSave.savedInBattle !== undefined) inBattle = playerSave.savedInBattle;
+		} else {
 			name = prompt("Please, enter your name:", "Crawler");
 		}
 	};
-
 	var loadHealth = function(savedHealth) {
-		if (savedHealth.currentValue !== undefined) {
-			health.currentValue = savedHealth.currentValue;
-		}
-		if (savedHealth.maximumValue !== undefined) {
-			health.maximumValue = savedHealth.maximumValue;
-		}
+		if (savedHealth.currentValue !== undefined) health.currentValue = savedHealth.currentValue;
+		if (savedHealth.maximumValue !== undefined) health.maximumValue = savedHealth.maximumValue;
 	};
-
 	var loadMana = function(savedMana) {
-		if (savedMana.currentValue !== undefined) {
-			mana.currentValue = savedMana.currentValue;
-		}
-		if (savedMana.maximumValue !== undefined) {
-			mana.maximumValue = savedMana.maximumValue;
-		}
+		if (savedMana.currentValue !== undefined) mana.currentValue = savedMana.currentValue;
+		if (savedMana.maximumValue !== undefined) mana.maximumValue = savedMana.maximumValue;
 	};
-
 	var loadStrength = function(savedStrength) {
-		if (savedStrength.level !== undefined) {
-			strength.level = savedStrength.level;
-		}
-		if (savedStrength.experience !== undefined) {
-			strength.experience = savedStrength.experience;
-		}
-		if (savedStrength.nextLevel !== undefined) {
-			strength.nextLevel = savedStrength.nextLevel;
-		}
-		if (savedStrength.bonus !== undefined) {
-			strength.bonus = savedStrength.bonus;
-		}
+		if (savedStrength.level !== undefined) strength.level = savedStrength.level;
+		if (savedStrength.experience !== undefined) strength.experience = savedStrength.experience;
+		if (savedStrength.nextLevel !== undefined) strength.nextLevel = savedStrength.nextLevel;
+		if (savedStrength.bonus !== undefined) strength.bonus = savedStrength.bonus;
 	};
-
 	var loadDexterity = function(savedDexterity) {
-		if (savedDexterity.level !== undefined) {
-			dexterity.level = savedDexterity.level;
-		}
-		if (savedDexterity.experience !== undefined) {
-			dexterity.experience = savedDexterity.experience;
-		}
-		if (savedDexterity.nextLevel !== undefined) {
-			dexterity.nextLevel = savedDexterity.nextLevel;
-		}
-		if (savedDexterity.bonus !== undefined) {
-			dexterity.bonus = savedDexterity.bonus;
-		}
+		if (savedDexterity.level !== undefined) dexterity.level = savedDexterity.level;
+		if (savedDexterity.experience !== undefined) dexterity.experience = savedDexterity.experience;
+		if (savedDexterity.nextLevel !== undefined) dexterity.nextLevel = savedDexterity.nextLevel;
+		if (savedDexterity.bonus !== undefined) dexterity.bonus = savedDexterity.bonus;
 	};
-
 	var loadConstitution = function(savedConstitution) {
-		if (savedConstitution.level !== undefined) {
-			constitution.level = savedConstitution.level;
-		}
-		if (savedConstitution.experience !== undefined) {
-			constitution.experience = savedConstitution.experience;
-		}
-		if (savedConstitution.nextLevel !== undefined) {
-			constitution.nextLevel = savedConstitution.nextLevel;
-		}
-		if (savedConstitution.bonus !== undefined) {
-			constitution.bonus = savedConstitution.bonus;
-		}
+		if (savedConstitution.level !== undefined) constitution.level = savedConstitution.level;
+		if (savedConstitution.experience !== undefined) constitution.experience = savedConstitution.experience;
+		if (savedConstitution.nextLevel !== undefined) constitution.nextLevel = savedConstitution.nextLevel;
+		if (savedConstitution.bonus !== undefined) constitution.bonus = savedConstitution.bonus;
 	};
-
 	var loadSpeed = function(savedSpeed) {
-		if (savedSpeed.level !== undefined) {
-			speed.level = savedSpeed.level;
-		}
-		if (savedSpeed.experience !== undefined) {
-			speed.experience = savedSpeed.experience;
-		}
-		if (savedSpeed.nextLevel !== undefined) {
-			speed.nextLevel = savedSpeed.nextLevel;
-		}
-		if (savedSpeed.bonus !== undefined) {
-			speed.bonus = savedSpeed.bonus;
-		}
+		if (savedSpeed.level !== undefined) speed.level = savedSpeed.level;
+		if (savedSpeed.experience !== undefined) speed.experience = savedSpeed.experience;
+		if (savedSpeed.nextLevel !== undefined) speed.nextLevel = savedSpeed.nextLevel;
+		if (savedSpeed.bonus !== undefined) speed.bonus = savedSpeed.bonus;
 	};
-
 	var loadMagic = function(savedMagic) {
-		if (savedMagic.level !== undefined) {
-			magic.level = savedMagic.level;
-		}
-		if (savedMagic.experience !== undefined) {
-			magic.experience = savedMagic.experience;
-		}
-		if (savedMagic.nextLevel !== undefined) {
-			magic.nextLevel = savedMagic.nextLevel;
-		}
-		if (savedMagic.bonus !== undefined) {
-			magic.bonus = savedMagic.bonus;
-		}
+		if (savedMagic.level !== undefined) magic.level = savedMagic.level;
+		if (savedMagic.experience !== undefined) magic.experience = savedMagic.experience;
+		if (savedMagic.nextLevel !== undefined) magic.nextLevel = savedMagic.nextLevel;
+		if (savedMagic.bonus !== undefined) magic.bonus = savedMagic.bonus;
 	};
 
 	//Getters
@@ -456,28 +371,33 @@ var Player = function() {
 	};
 
 	self.loadExploreButton = function() {
-		if (currentFloor !== 0) {
-			if (inBattle || resting) {
-				if (tower.floorExplorationComplete(currentFloor)) {
-					document.getElementById("exploreButton").innerHTML = '<button class="btn btn-danger btn-block" disabled="disabled">Find Monster</button>';
-				}
-				else {
-					document.getElementById("exploreButton").innerHTML = '<button class="btn btn-danger btn-block" disabled="disabled">Explore</button>';
-				}
+		// Assuming 'inSession' and 'session' properties are accessible, possibly through a method or directly
+		// Adjust the access method based on your actual implementation
+		const inSession = tower.inSession;
+		const sessionComplete = tower.session && tower.session.explored >= tower.session.size;
+	
+		const exploreButton = document.getElementById("exploreButton");
+	
+		// Check if the player is in a session and not currently in battle or resting
+		if (inSession && !inBattle && !resting) {
+			if (sessionComplete) {
+				// If the session is complete, offer to claim the reward or find a monster (if applicable to your game design)
+				exploreButton.innerHTML = '<button class="btn btn-default btn-block" onClick="tower.claimReward()">Claim Reward</button>';
+			} else {
+				// If the session is not complete, allow continuing exploration
+				exploreButton.innerHTML = '<button class="btn btn-default btn-block" onClick="tower.explore()">Explore</button>';
 			}
-			else {
-				if (tower.floorExplorationComplete(currentFloor)) {
-					document.getElementById("exploreButton").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.exploreFloor()">Find Monster</button>';
-				}
-				else {
-					document.getElementById("exploreButton").innerHTML = '<button class="btn btn-default btn-block" onClick="tower.exploreFloor()">Explore</button>';
-				}
-			}
-		}
-		else {
-			document.getElementById("exploreButton").innerHTML = '';
+		} else if (inSession) {
+			// If in a session but either in battle or resting, disable the explore button
+			exploreButton.innerHTML = sessionComplete ?
+				'<button class="btn btn-danger btn-block" disabled="disabled">Find Monster</button>' :
+				'<button class="btn btn-danger btn-block" disabled="disabled">Explore</button>';
+		} else {
+			// If not in a session, clear the explore button or set it to a default state
+			exploreButton.innerHTML = '';
 		}
 	};
+	
 
 	self.loadRestButton = function() {
 		if (currentFloor !== 0) {
@@ -516,7 +436,7 @@ var Player = function() {
 		if (system.getIdleMode()) {
 			system.toggleIdle();
 		}
-		tower.changeFloor(-currentFloor);
+		tower.abandonSession();
 		upgrades.updateExcelia(-((100 - characterBuffs.get('ExceliaSavedOnDeath')) * upgrades.getExcelia())/100);
 		loseStats(10 - characterBuffs.get('DeathPenaltyReduction'));
 		loseAllExperience();
@@ -542,11 +462,6 @@ var Player = function() {
 	};
 
 	self.toggleRest = function() {
-		// if (resting === false) {
-		// 	resting = true;
-		// }
-		// console.log("Resting????");
-		// console.log("Resting: " + resting);
 		resting = !resting;
 		self.loadRestButton();
 		self.loadExploreButton();

@@ -3,7 +3,7 @@
  * @param {string} message - The message to log.
  * @param {boolean} [append=false] - Whether to append the message or replace the content.
  */
-function logToFloor (message, append = false) {
+function logToFloor(message, append = false) {
   const floorLogElement = document.getElementById('floorlog')
   if (!floorLogElement) {
     console.warn("logToFloor: 'floorlog' element not found.")
@@ -26,17 +26,42 @@ function logToFloor (message, append = false) {
  * @param {boolean} [options.condition=true] - Condition to determine if button should be created.
  * @returns {string} The HTML string for the button or an empty string if condition is not met.
  */
-function createButtonHTML ({ text, classes, action, condition = true }) {
+function createButtonHTML({ text, classes, action, condition = true }) {
   if (!condition) return '' // Do not create the button if condition is false.
 
   return `<button class="${classes}" onClick="${action}">${text}</button>`
 }
 
+
+// On Load
+$(document).ready(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+  $("#tabSelect").change(function () {
+    var selectedTab = $(this).val();
+    console.log(selectedTab);
+
+    // Hide all sections initially
+    $(".tab-pane").each(function () {
+      $(this).hide();
+    });
+
+    if (selectedTab === "all") {
+      // Show all sections
+      $(".tab-pane").each(function () {
+        $(this).show();
+      });
+    } else {
+      // Show only the selected section
+      $("#" + selectedTab).show();
+    }
+  });
+});
+
 // Function to load a component
-async function loadComponent (path, elementId) {
-  const response = await fetch(path)
-  const html = await response.text()
-  document.getElementById(elementId).innerHTML = html
+async function loadComponent(path, elementId) {
+  const response = await fetch(path);
+  const html = await response.text();
+  document.getElementById(elementId).innerHTML = html;
 }
 
 // Assuming you have a global variable to hold the spells data
@@ -54,32 +79,18 @@ fetch('/assets/json/spells.json')
   })
   .catch(error => console.error('Failed to load spells:', error))
 
-// On Load
-$(document).ready(function () {
-  $('[data-toggle="tooltip"]').tooltip();
-  $('#tabSelect').change(function () {
-    var selectedTab = $(this).val()
-    console.log(selectedTab)
-
-    // Hide all sections initially
-    $('.tab-pane').each(function () {
-      $(this).hide()
-    })
-
-    if (selectedTab === 'all') {
-      // Show all sections
-      $('.tab-pane').each(function () {
-        $(this).show()
-      })
-    } else {
-      // Show only the selected section
-      $('#' + selectedTab).show()
-    }
-  })
-})
+function createAndAppendElement(type, id, text, parentSelector, style = {}) {
+  const parent = document.querySelector(parentSelector);
+  const element = document.createElement(type);
+  element.id = id;
+  element.textContent = text;
+  Object.assign(element.style, style, { display: 'none' }); // Default to not displayed
+  parent.appendChild(element);
+  return element;
+}
 
 class System {
-  constructor () {
+  constructor() {
     this.ticks = 0
     this.refreshSpeed = 1000
     this.init = false
@@ -94,49 +105,50 @@ class System {
     this.hardReset = this.hardReset.bind(this)
   }
 
-  save () {
+  save() {
     const systemSave = { savedTicks: this.ticks }
     localStorage.setItem('systemSave', JSON.stringify(systemSave))
   }
 
-  load () {
+  load() {
     const systemSave = JSON.parse(localStorage.getItem('systemSave'))
     if (systemSave?.savedTicks !== undefined) {
       this.ticks = systemSave.savedTicks
     }
   }
 
-  saveAll () {
+  saveAll() {
     this.save()
     player.save()
     spells.save()
     upgrades.save()
     buffs.save()
     monsters.save()
-    tower.save()
+    // tower.save()
     inventory.save()
   }
 
-  loadAll () {
+  loadAll() {
     this.load()
     player.load()
     spells.load()
     upgrades.load()
     buffs.load()
     monsters.load()
-    tower.load()
+    // tower.load()
+    tower.loadTowerScreen()
     inventory.load()
   }
 
-  getIdleMode () {
+  getIdleMode() {
     return this.idleMode
   }
 
-  runGame () {
+  runGame() {
     this.theGame = setInterval(() => this.main(), this.refreshSpeed)
   }
 
-  gameSpeed (number) {
+  gameSpeed(number) {
     if (this.idleMode) {
       this.refreshSpeed = number
       clearInterval(this.theGame)
@@ -145,7 +157,7 @@ class System {
     }
   }
 
-  hardReset () {
+  hardReset() {
     clearInterval(this.theGame)
     if (confirm('Are you sure you want to wipe all your progress?')) {
       localStorage.clear()
@@ -155,7 +167,7 @@ class System {
     }
   }
 
-  updateTime (number) {
+  updateTime(number) {
     document.getElementById('seconds').innerHTML = number % 60
     number = Math.floor(number / 60)
     document.getElementById('minutes').innerHTML = number % 60
@@ -165,7 +177,7 @@ class System {
     document.getElementById('days').innerHTML = number
   }
 
-  main () {
+  main() {
     if (!this.init) {
       this.startTheEngine()
     }
@@ -173,6 +185,12 @@ class System {
     if (player.getResting()) {
       player.rest()
     }
+    this.idleDisplayFunction()
+    this.updateTime(this.ticks)
+    this.saveAll()
+  }
+
+  idleDisplayFunction() {
     if (!player.getInBattle()) {
       document.querySelector('#battleScreen').style.display = 'none'
       document.querySelector('#theTower').style.display = 'block'
@@ -187,10 +205,10 @@ class System {
         }
         if (
           100 *
-            (player.getHealthCurrentValue() / player.getHealthMaximumValue()) >=
-            idleHealthSlider.getValue() &&
+          (player.getHealthCurrentValue() / player.getHealthMaximumValue()) >=
+          idleHealthSlider.getValue() &&
           100 * (player.getManaCurrentValue() / player.getManaMaximumValue()) >=
-            idleManaSlider.getValue() &&
+          idleManaSlider.getValue() &&
           !player.getResting()
         ) {
           tower.exploreFloor()
@@ -201,11 +219,9 @@ class System {
         monsters.attackMelee()
       }
     }
-    this.updateTime(this.ticks)
-    this.saveAll()
   }
 
-  toggleIdle () {
+  toggleIdle() {
     this.idleMode = !this.idleMode
     this.gameSpeed(this.idleMode ? 100 : 1000)
     if (player.getCurrentFloor() === 0) {
@@ -221,7 +237,7 @@ class System {
     }
   }
 
-  loadIdleHealthSlider () {
+  loadIdleHealthSlider() {
     this.idleHealthSlider = new Slider('#idleRest', {
       ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       ticks_snap_bounds: 10,
@@ -229,7 +245,7 @@ class System {
     })
   }
 
-  loadIdleManaSlider () {
+  loadIdleManaSlider() {
     this.idleManaSlider = new Slider('#idleMpRest', {
       ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       ticks_snap_bounds: 10,
@@ -237,7 +253,7 @@ class System {
     })
   }
 
-  loadIdleButton () {
+  loadIdleButton() {
     if (this.idleMode) {
       document.getElementById('idleSwitch').innerHTML =
         '<button class="btn btn-success" onClick="system.toggleIdle()">Idle ON</button>'
@@ -247,18 +263,12 @@ class System {
     }
   }
 
-  startTheEngine () {
+  startTheEngine() {
     this.loadAll()
-
-    // Assuming loadIdleHealthSlider, loadIdleManaSlider, and loadIdleButton are methods of this class.
-    // If they're not, you'll need to define them in this class or ensure they're correctly referenced.
     this.loadIdleHealthSlider()
     this.loadIdleManaSlider()
     this.loadIdleButton()
 
-    // Assuming player, spells, upgrades, buffs, monsters, tower, and inventory
-    // are external objects that have been correctly instantiated and are accessible in this context.
-    // If they're part of this class, you should call them with 'this' prefix.
     player.loadPlayerScreen()
     player.loadExploreButton()
     player.loadRestButton()
@@ -274,21 +284,17 @@ class System {
       monsters.loadMonsterInfo(monsters.getInstancedMonster())
     }
 
-    tower.loadTowerScreen()
+
     inventory.updateInventoryHTML()
     inventory.updateInventory()
     inventory.updateEquipment()
 
-    // Correctly use 'this' to call a method within the same class
     this.gameSpeed(1000)
 
     this.init = true
     this.runGame()
   }
 }
-
-const system = new System()
-system.runGame()
 
 loadComponent("components/inventoryTab.html", "inventoryTab");
 loadComponent("components/towerTab.html", "towerTab");
@@ -303,3 +309,7 @@ loadComponent("components/spellBook.html", "spellBook");
 loadComponent("components/spellEffects.html", "spellEffects");
 loadComponent("components/inventoryKeys.html", "inventoryKeys");
 loadComponent("components/equipmentLoot.html", "equipmentLoot");
+
+const system = new System()
+system.runGame()
+
