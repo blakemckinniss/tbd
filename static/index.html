@@ -1,122 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-      integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.0.0/css/bootstrap-slider.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Germania+One"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <title>Optimized Web Page</title>
-    <meta
-      name="description"
-      content="An optimized version of the initial web page, focusing on performance, accessibility, and best practices."
-    />
-  </head>
-  <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.3.0/showdown.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
-      integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/7.0.0/bootstrap-slider.min.js"></script>
-    <script src="assets/js/system.js"></script>
-    <script src="assets/js/player.js"></script>
-    <script src="assets/js/spells.js"></script>
-    <script src="assets/js/upgrades.js"></script>
-    <script src="assets/js/buffs.js"></script>
-    <script src="assets/js/monsters.js"></script>
-    <script src="assets/js/tower.js"></script>
-    <script src="assets/js/inventory.js"></script>
-    <div class="container-fluid">
-      <header>
-        <!-- Improved navigation semantics -->
-        <nav class="navbar">
-          <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-              <a
-                href="#towerTab"
-                role="tab"
-                data-toggle="tab"
-                aria-controls="towerTab"
-                aria-selected="true"
-                >Tower</a
-              >
-            </li>
-            <li role="presentation">
-              <a
-                href="#inventoryTab"
-                role="tab"
-                data-toggle="tab"
-                aria-controls="inventoryTab"
-                aria-selected="false"
-                >Inventory</a
-              >
-            </li>
-            <li role="presentation">
-              <a
-                href="#upgradesTab"
-                role="tab"
-                data-toggle="tab"
-                aria-controls="upgradesTab"
-                aria-selected="false"
-                >Upgrades</a
-              >
-            </li>
-            <li role="presentation">
-              <a
-                href="#idleTab"
-                role="tab"
-                data-toggle="tab"
-                aria-controls="idleTab"
-                aria-selected="false"
-                >Idle</a
-              >
-            </li>
-          </ul>
-        </nav>
-      </header>
-      <main>
-        <div class="tab-content">
-          <div
-            role="tabpanel"
-            class="tab-pane"
-            id="inventoryTab"
-            aria-labelledby="inventoryTab"
-          ></div>
-          <div
-            role="tabpanel"
-            class="tab-pane active"
-            id="towerTab"
-            aria-labelledby="towerTab"
-          ></div>
-          <div
-            role="tabpanel"
-            class="tab-pane"
-            id="upgradesTab"
-            aria-labelledby="upgradesTab"
-          ></div>
-          <div
-            role="tabpanel"
-            class="tab-pane"
-            id="idleTab"
-            aria-labelledby="idleTab"
-          ></div>
-        </div>
-      </main>
-    </div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/ext/bootstrap-slider-style.css" />
+  <link rel="stylesheet" href="assets/ext/bootstrap-style.css" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <title>TBD</title>
+  <meta name="description"
+    content="TBD" />
+  <script src="assets/ext/jquery.js"></script>
+  <script src="assets/ext/bootstrap.js"></script>
+  <script src="assets/ext/bootstrap-slider.js"></script>
+</head>
+<body>
+  <script src="assets/js/player.js"></script>
+  <script src="assets/js/map.js"></script>
+  <script src="assets/js/inventory.js"></script>
+  <script src="assets/js/enemies.js"></script>
+  <script src="assets/js/spells.js"></script>
+  <script src="assets/js/buffs.js"></script>
+
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/system.js"></script>
+  <div class="container-fluid">
+    <header>
+      <nav class="navbar">
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#mapTab" role="tab" data-toggle="tab" aria-controls="mapTab" aria-selected="true">Home</a>
+          </li>
+          <li role="presentation">
+            <a href="#inventoryTab" role="tab" data-toggle="tab" aria-controls="inventoryTab"
+              aria-selected="false">Tavern</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="inventoryTab" aria-labelledby="inventoryTab"></div>
+        <div role="tabpanel" class="tab-pane active" id="mapTab" aria-labelledby="mapTab"></div>
+      </div>
+    </main>
+  </div>
+</body>
 </html>

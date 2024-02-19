@@ -1,0 +1,51 @@
+<div class="col-xs-12">
+  <div class="panel panel-default">
+    <div class="panel-heading" data-toggle="collapse" data-target="#collapseMap">
+      <div class="row">
+        <div class="col-xs-4">
+          <h3 class="panel-title"><span id="mapElement"></span>Map Area</h3>
+        </div>
+        <div class="col-xs-8 text-right">
+          <span id="mapQuantity">0%</span><span id="mapDensity">0%</span>
+        </div>
+      </div>
+    </div>
+    <div id="collapseMap" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="progress">
+              <div id="mapbar" class="progress-bar" role="progressbar" style="width: 0%">
+                <span id="explorebar">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <table class="table" id="mapUI">
+          <tr>
+            <td><span id="retbut"></span></td>
+            <td><span id="exploreButton"></span></td>
+            <td><span id="restButton"></span></td>
+            <td><span id="advbut"></span></td>
+            <td><span id="enterMapButton"><button class="btn btn-default btn-block" onClick="map.startMap()">Open
+                  Map</button></span></td>
+            <td><span id="resumeMapButton" style="display: none"></span></td>
+            <td><span id="abandonMapButton" style="display: none"></span></td>
+            <td><span id="claimRewardButton" style="display: none"></span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="panel-footer">
+      <div class="row">
+        <div class="col-xs-12">
+          <span id="maplog">Nothing happened here yet.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  map.loadMapScreen();
+  console.log("The Map loaded");
+</script>

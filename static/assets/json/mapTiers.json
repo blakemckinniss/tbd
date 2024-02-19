@@ -1,0 +1,109 @@
+[    {
+    "tier": 1,
+    "size": 100,
+    "explored": 0,
+    "enemyDensity": 35,
+    "eventChance": 17,
+    "dropQuantity": 1,
+    "eventTypes": []
+  },
+  {
+    "tier": 2,
+    "size": 120,
+    "explored": 0,
+    "enemyDensity": 40,
+    "eventChance": 24,
+    "dropQuantity": 2,
+    "eventTypes": []
+  },
+  {
+    "tier": 3,
+    "size": 140,
+    "explored": 0,
+    "enemyDensity": 45,
+    "eventChance": 31,
+    "dropQuantity": 3,
+    "eventTypes": []
+  },
+  {
+    "tier": 4,
+    "size": 160,
+    "explored": 0,
+    "enemyDensity": 50,
+    "eventChance": 38,
+    "dropQuantity": 4,
+    "eventTypes": []
+  },
+  {
+    "tier": 5,
+    "size": 180,
+    "explored": 0,
+    "enemyDensity": 55,
+    "eventChance": 45,
+    "dropQuantity": 5,
+    "eventTypes": []
+  },
+  {
+    "tier": 6,
+    "size": 200,
+    "explored": 0,
+    "enemyDensity": 60,
+    "eventChance": 52,
+    "dropQuantity": 6,
+    "eventTypes": []
+  },
+  {
+    "tier": 7,
+    "size": 220,
+    "explored": 0,
+    "enemyDensity": 65,
+    "eventChance": 59,
+    "dropQuantity": 7,
+    "eventTypes": []
+  },
+  {
+    "tier": 8,
+    "size": 240,
+    "explored": 0,
+    "enemyDensity": 70,
+    "eventChance": 66,
+    "dropQuantity": 8,
+    "eventTypes": []
+  },
+  {
+    "tier": 9,
+    "size": 260,
+    "explored": 0,
+    "enemyDensity": 75,
+    "eventChance": 73,
+    "dropQuantity": 9,
+    "eventTypes": []
+  },
+  {
+    "tier": 10,
+    "size": 280,
+    "explored": 0,
+    "enemyDensity": 80,
+    "eventChance": 80,
+    "dropQuantity": 10,
+    "eventTypes": []
+  },
+  {
+    "tier": 11,
+    "size": 300,
+    "explored": 0,
+    "enemyDensity": 85,
+    "eventChance": 87,
+    "dropQuantity": 11,
+    "eventTypes": []
+  },
+  {
+    "tier": 12,
+    "size": 320,
+    "explored": 0,
+    "enemyDensity": 90,
+    "eventChance": 94,
+    "dropQuantity": 12,
+    "eventTypes": []
+  }
+]

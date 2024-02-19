@@ -8,12 +8,11 @@
                         <div class="panel-heading" data-toggle="collapse" data-target="#collapseShop">
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <h3 class="panel-title" >
+                                    <h3 class="panel-title">
                                         The Shop
                                     </h3>
                                 </div>
                                 <div class="col-xs-6 text-right">
-                                    Gold: <span id="gold">0</span>
                                 </div>
                             </div>
                         </div>
@@ -21,34 +20,45 @@
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-xs-12">
-                                        A weird stall is placed at the floor entrance. The shopkeeper seems bored, but rejoices upon noticing you and says: "Welcome, welcome to my humble shop! May I interest you in some keys or experience crystals? Or are you here to sell?"
+                                        A weird stall is placed at the floor entrance. The shopkeeper seems bored, but
+                                        rejoices upon noticing you and says: "Welcome, welcome to my humble shop! May I
+                                        interest you in some keys or experience consumables? Or are you here to sell?"
                                     </div>
                                 </div>
                                 <div class="row" style="height: 10px;"></div>
                                 <div class="row">
                                     <div class="col-xs-6">
-                                        <button class="btn btn-block btn-primary" onClick="inventory.buyKey()">Buy a Chest Key! (Price: <span id="keyprice">0</span>)</button>
+                                        <button class="btn btn-block btn-primary" onClick="inventory.buyKey()">Buy a
+                                            Chest Key! (Price: <span id="keyprice">0</span>)</button>
                                     </div>
                                     <div class="col-xs-6">
                                         <span id="sellbutton">
-                                            <button class="btn btn-block btn-success" onClick="inventory.updateInventory(true)">Enter Sell Mode</button>
+                                            <button class="btn btn-block btn-success"
+                                                onClick="inventory.updateInventory(true)">Enter Sell Mode</button>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="row" style="height: 10px;"></div>
                                 <div class="row">
                                     <div class="col-xs-12">
-                                        Experience Crystals (Price: <span id="crystalprice">0</span>):
+                                        Experience Consumables (Price: <span id="consumableprice">0</span>):
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-12">
-                                        <button class="btn btn-primary" onClick="inventory.buyCrystal('Strength')">Strength</button>
-                                        <button class="btn btn-primary" onClick="inventory.buyCrystal('Dexterity')">Dexterity</button>
-                                        <button class="btn btn-primary" onClick="inventory.buyCrystal('Constitution')">Constitution</button>
-                                        <button class="btn btn-primary" onClick="inventory.buyCrystal('Speed')">Speed</button>
-                                        <button class="btn btn-primary" onClick="inventory.buyCrystal('Magic')">Magic</button>
-                                        <button class="btn btn-danger" data-toggle="tooltip" title="Small tip: A random crystal costs only half the price!" onClick="inventory.buyCrystal('')">Random</button>
+                                        <button class="btn btn-primary"
+                                            onClick="inventory.buyConsumable('Strength')">Strength</button>
+                                        <button class="btn btn-primary"
+                                            onClick="inventory.buyConsumable('Dexterity')">Dexterity</button>
+                                        <button class="btn btn-primary"
+                                            onClick="inventory.buyConsumable('Constitution')">Constitution</button>
+                                        <button class="btn btn-primary"
+                                            onClick="inventory.buyConsumable('Speed')">Speed</button>
+                                        <button class="btn btn-primary"
+                                            onClick="inventory.buyConsumable('Magic')">Magic</button>
+                                        <button class="btn btn-danger" data-toggle="tooltip"
+                                            title="Small tip: A random consumable costs only half the price!"
+                                            onClick="inventory.buyConsumable('')">Random</button>
                                     </div>
                                 </div>
                             </div>
@@ -57,9 +67,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-6"  id="inventoryKeys">
-        </div>
-        <div class="col-xs-6"  id="equipmentLoot">
-        </div>
+
     </div>
 </div>

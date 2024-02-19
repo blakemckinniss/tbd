@@ -1,315 +1,280 @@
-/**
- * Logs a message to the floor log element.
- * @param {string} message - The message to log.
- * @param {boolean} [append=false] - Whether to append the message or replace the content.
- */
-function logToFloor(message, append = false) {
-  const floorLogElement = document.getElementById('floorlog')
-  if (!floorLogElement) {
-    console.warn("logToFloor: 'floorlog' element not found.")
-    return
-  }
+const STORAGE_KEYS = {
+  PLAYER: 'playerSave',
+  GAME_MAP: 'gameMapSave',
+  BUFFS: 'buffsSave',
+  INVENTORY: 'inventorySave',
+  SPELLS: 'spellsSave',
+  ENEMIES: 'enemiesSave'
+};
 
-  if (append) {
-    floorLogElement.innerHTML += message + '<br>' // Appends message with a line break for separation.
-  } else {
-    floorLogElement.innerHTML = message // Replaces the current content with the new message.
+const stats = [
+  { id: 'strength', label: 'STR', tooltip: 'Strength. Allows you to hit harder.' },
+  { id: 'constitution', label: 'CON', tooltip: 'Constitution. Increase your this.health and decrease damage taken.' },
+  { id: 'magic', label: 'MGC', tooltip: 'Magic. Increase your this.mana and slightly boost your spell efficiency. Also unlocks new spells.' },
+  { id: 'dexterity', label: 'DEX', tooltip: 'Dexterity. Slight damage increase.' },
+  { id: 'speed', label: 'SPD', tooltip: 'Speed. Allows you to explore the floor faster, and also increases the chance of running away.' }
+];
+
+const elements = ["fire", "water", "earth", "air", "light", "dark"]; 
+
+const UIComponents = [
+  { path: "components/inventoryTab.html", elementId: "inventoryTab" },
+  { path: "components/mapTab.html", elementId: "mapTab" },
+  { path: "components/mapTabC1.html", elementId: "mapTabC1" },
+  { path: "components/mapTabC2.html", elementId: "mapTabC2" },
+  { path: "components/battleScreen.html", elementId: "battleScreen" },
+  { path: "components/theMap.html", elementId: "theMap" },
+  { path: "components/statusScreen.html", elementId: "statusScreen" },
+  { path: "components/spellBook.html", elementId: "spellBook" },
+  { path: "components/spellEffects.html", elementId: "spellEffects" },
+  { path: "components/inventoryKeys.html", elementId: "inventoryKeys" },
+  { path: "components/equipmentLoot.html", elementId: "equipmentLoot" },
+];
+
+let characterBuffs = (function () {
+  let properties = {
+      CastFireballInBattle: false,
+      RageTimeLeft: 0,
+      SpellLevelingMultiplier: 1,
+      BarrierLeft: 0,
+      AegisTimeLeft: 0,
+      CastCureInBattle: false,
+      ExceliaMultiplier: 1,
+      ManaPerSecond: 0,
+      ExceliaSavedOnDeath: 0,
+      RestingMultiplier: 1,
+      DeathPenaltyReduction: 0,
+      AutoBarrierCast: false,
+      LevelingSpeedMultiplier: 1,
+      ExplorationSpeedMultiplier: 1
+  };
+  return {
+      get: function (propertyName) {
+          return properties[propertyName];
+      },
+      set: function (propertyName, value) {
+          properties[propertyName] = value;
+      }
+  };
+})();
+
+const DEBUG_MODE = true;
+
+function debugLog(...messages) {
+  if (DEBUG_MODE) {
+    console.log(...messages);
   }
 }
 
-/**
- * Creates HTML for a button based on provided specifications.
- * @param {Object} options - The options for button creation.
- * @param {string} options.text - The text to display on the button.
- * @param {string} options.classes - The CSS classes for styling the button.
- * @param {string} options.action - The JavaScript function to call onClick.
- * @param {boolean} [options.condition=true] - Condition to determine if button should be created.
- * @returns {string} The HTML string for the button or an empty string if condition is not met.
- */
-function createButtonHTML({ text, classes, action, condition = true }) {
-  if (!condition) return '' // Do not create the button if condition is false.
-
-  return `<button class="${classes}" onClick="${action}">${text}</button>`
+function debugError(...messages) {
+  if (DEBUG_MODE) {
+    console.error(...messages);
+  }
 }
 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Network response was not ok for ${url}`);
+    return await response.json();
+  } catch (error) {
+    debugError(`Failed to fetch data from ${url}:`, error);
+    throw error;
+  }
+}
 
-// On Load
-$(document).ready(function () {
-  $('[data-toggle="tooltip"]').tooltip();
-  $("#tabSelect").change(function () {
-    var selectedTab = $(this).val();
-    console.log(selectedTab);
-
-    // Hide all sections initially
-    $(".tab-pane").each(function () {
-      $(this).hide();
-    });
-
-    if (selectedTab === "all") {
-      // Show all sections
-      $(".tab-pane").each(function () {
-        $(this).show();
-      });
-    } else {
-      // Show only the selected section
-      $("#" + selectedTab).show();
+async function loadUIComponents(player, inventory) {
+  const uiComponentPromises = UIComponents.map(async (component) => {
+    try {
+      await loadComponent(component.path, component.elementId);
+    } catch (error) {
+      console.error(`Failed to load component ${component.elementId}:`, error);
+      throw error;
     }
   });
-});
-
-// Function to load a component
-async function loadComponent(path, elementId) {
-  const response = await fetch(path);
-  const html = await response.text();
-  document.getElementById(elementId).innerHTML = html;
+  await Promise.all(uiComponentPromises);
+  console.log("All UI components are successfully loaded.");
+  UIsetup();
+  console.log("UI is setup.");
+  player.loadPlayerScreen();
+  inventory.updateInventoryHTML();
+  if (player.inBattle) {
+    enemies.loadEnemyInfo(enemies.getInstancedEnemy());
+    document.querySelector("#battleScreen").style.display = "block";
+  } else {
+    document.querySelector("#battleScreen").style.display = "none";
+  }
+  console.log("Player screen is loaded.");
 }
 
-// Assuming you have a global variable to hold the spells data
-var globalSpellData = []
-var spells = ''
+async function loadComponent(path, elementId) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  const html = await response.text();
+  document.getElementById(elementId).innerHTML = html;
+  console.log(`Component ${elementId} is successfully loaded.`);
+}
 
-// Fetch the JSON data as soon as the page starts loading
-fetch('/assets/json/spells.json')
-  .then(response => response.json())
-  .then(data => {
-    globalSpellData = data
-    spells = new Spells()
-    // Trigger any dependent initialization here
-    // initializeSpells();
-  })
-  .catch(error => console.error('Failed to load spells:', error))
+class StateManager {
+  static save(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+      debugError(`Error saving data for ${key}:`, error);
+    }
+  }
 
-function createAndAppendElement(type, id, text, parentSelector, style = {}) {
-  const parent = document.querySelector(parentSelector);
-  const element = document.createElement(type);
-  element.id = id;
-  element.textContent = text;
-  Object.assign(element.style, style, { display: 'none' }); // Default to not displayed
-  parent.appendChild(element);
-  return element;
+  static load(key) {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      debugError(`Error loading data for ${key}:`, error);
+      return null;
+    }
+  }
+}
+
+class GameSystem {
+  constructor() {
+    this.player = new Player();
+    this.inventory = new Inventory(this.player);
+    this.buffs = new Buffs(this.player);
+    this.enemies = new Enemies(this.player);
+    this.gameMap = new GameMap(this.player);
+    this.spells = new Spells(this.player, this.inventory);
+    this.gameInitializer = new GameInitializer(this);
+    this.system = new System(this.player);
+  }
+
+  async initialize() {
+    try {
+      await this.gameInitializer.initialize();
+      loadUIComponents(this.player, this.inventory);
+      this.system.startTheEngine(this.player, this.spells);
+      debugLog("Game is ready.");
+    } catch (error) {
+      debugError("Game initialization failed:", error);
+    }
+  }
+
+  saveGameState() {
+    StateManager.save("gameState", {
+      player: this.player.save(),
+      inventory: this.inventory.save(),
+      buffs: this.buffs.save(),
+      enemies: this.enemies.save(),
+      gameMap: this.gameMap.save(),
+      spells: this.spells.save(),
+      system: this.system.save()
+    });
+  }
+
+  loadGameState() {
+    const gameState = StateManager.load("gameState");
+    if (gameState) {
+      this.player.load(gameState.player);
+      this.inventory.load(gameState.inventory);
+      this.buffs.load(gameState.buffs);
+      this.enemies.load(gameState.enemies);
+      this.gameMap.load(gameState.gameMap);
+      this.spells.load(gameState.spells);
+      this.system.load(gameState.system);
+    }
+  }
+}
+
+class GameInitializer {
+  constructor(gameSystem) {
+    this.gameSystem = gameSystem;
+    this.gameDataUrls = {
+      spellbook: '/assets/json/spells.json',
+      mapTiers: '/assets/json/mapTiers.json',
+    };
+  }
+
+  async initialize() {
+    try {
+      await this.loadGameData();
+      debugLog("All components initialized successfully.");
+    } catch (error) {
+      debugError(`GameInitializer failed: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async loadGameData() {
+    const gameDataPromises = Object.entries(this.gameDataUrls).map(async ([key, url]) => {
+      try {
+        this.gameSystem[key] = await fetchData(url);
+        debugLog(`Loaded game data for ${key} from ${url}`);
+      } catch (error) {
+        debugError(`Failed to fetch game data for ${key}:`, error);
+        throw error;
+      }
+    });
+
+    try {
+      await Promise.all(gameDataPromises);
+    } catch (error) {
+      debugError("Error loading game data:", error);
+      throw error;
+    }
+  }
 }
 
 class System {
   constructor() {
-    this.ticks = 0
-    this.refreshSpeed = 1000
-    this.init = false
-    this.idleMode = false
-    this.idleHealthSlider = null
-    this.idleManaSlider = null
-    this.theGame = null
-    this.startTheEngine = this.startTheEngine.bind(this)
-    this.toggleIdle = this.toggleIdle.bind(this)
-    this.runGame = this.runGame.bind(this)
-    this.gameSpeed = this.gameSpeed.bind(this)
-    this.hardReset = this.hardReset.bind(this)
+    this.ticks = 0;
+    this.refreshSpeed = 1000;
+    this.init = false;
+    this.theGame = null;
+    this.startTheEngine = this.startTheEngine.bind(this);
+    this.runGame = this.runGame.bind(this);
   }
 
   save() {
-    const systemSave = { savedTicks: this.ticks }
-    localStorage.setItem('systemSave', JSON.stringify(systemSave))
+    const systemSave = {
+      ticks: this.ticks,
+      refreshSpeed: this.refreshSpeed
+    };
+    StateManager.save('systemState', systemSave);
   }
 
   load() {
-    const systemSave = JSON.parse(localStorage.getItem('systemSave'))
-    if (systemSave?.savedTicks !== undefined) {
-      this.ticks = systemSave.savedTicks
+    const systemSave = StateManager.load('systemState');
+    if (systemSave) {
+      this.ticks = systemSave.ticks;
+      this.refreshSpeed = systemSave.refreshSpeed;
+      this.idleMode = systemSave.idleMode;
     }
   }
 
-  saveAll() {
-    this.save()
-    player.save()
-    spells.save()
-    upgrades.save()
-    buffs.save()
-    monsters.save()
-    // tower.save()
-    inventory.save()
+  startTheEngine(player, spells) {
+    this.runGame(player, spells);
+    this.init = true;
+    console.log("The game engine has started.")
+    gameSystem.loadGameState();
+    console.log("Game state is loaded.");
+    
   }
 
-  loadAll() {
-    this.load()
-    player.load()
-    spells.load()
-    upgrades.load()
-    buffs.load()
-    monsters.load()
-    // tower.load()
-    tower.loadTowerScreen()
-    inventory.load()
-  }
-
-  getIdleMode() {
-    return this.idleMode
-  }
-
-  runGame() {
-    this.theGame = setInterval(() => this.main(), this.refreshSpeed)
-  }
-
-  gameSpeed(number) {
-    if (this.idleMode) {
-      this.refreshSpeed = number
-      clearInterval(this.theGame)
-      this.runGame()
-      document.getElementById('speed').innerHTML = 1000 / number
-    }
-  }
-
-  hardReset() {
-    clearInterval(this.theGame)
-    if (confirm('Are you sure you want to wipe all your progress?')) {
-      localStorage.clear()
-      location.reload()
-    } else {
-      this.runGame()
-    }
-  }
-
-  updateTime(number) {
-    document.getElementById('seconds').innerHTML = number % 60
-    number = Math.floor(number / 60)
-    document.getElementById('minutes').innerHTML = number % 60
-    number = Math.floor(number / 60)
-    document.getElementById('hours').innerHTML = number % 24
-    number = Math.floor(number / 24)
-    document.getElementById('days').innerHTML = number
-  }
-
-  main() {
-    if (!this.init) {
-      this.startTheEngine()
-    }
-    this.ticks++
-    if (player.getResting()) {
-      player.rest()
-    }
-    this.idleDisplayFunction()
-    this.updateTime(this.ticks)
-    this.saveAll()
-  }
-
-  idleDisplayFunction() {
-    if (!player.getInBattle()) {
-      document.querySelector('#battleScreen').style.display = 'none'
-      document.querySelector('#theTower').style.display = 'block'
-    } else {
-      document.querySelector('#battleScreen').style.display = 'block'
-      document.querySelector('#theTower').style.display = 'none'
-    }
-    if (this.idleMode) {
-      if (!player.getInBattle()) {
-        if (buffs.getBarrierLeft() === 0 && buffs.getAutoBarrierCast()) {
-          spells.castSpell('barrier')
-        }
-        if (
-          100 *
-          (player.getHealthCurrentValue() / player.getHealthMaximumValue()) >=
-          idleHealthSlider.getValue() &&
-          100 * (player.getManaCurrentValue() / player.getManaMaximumValue()) >=
-          idleManaSlider.getValue() &&
-          !player.getResting()
-        ) {
-          tower.exploreFloor()
-        } else if (!player.getResting() || player.isFullyRested()) {
-          player.toggleRest()
-        }
-      } else {
-        monsters.attackMelee()
+  runGame(player, spells) {
+    if (this.theGame) clearInterval(this.theGame);
+    this.theGame = setInterval(() => {
+      this.ticks++;
+      if (player.resting === true) {
+        player.rest();
       }
-    }
-  }
-
-  toggleIdle() {
-    this.idleMode = !this.idleMode
-    this.gameSpeed(this.idleMode ? 100 : 1000)
-    if (player.getCurrentFloor() === 0) {
-      return false
-    }
-    if (idleMode) {
-      self.gameSpeed(1000)
-      idleMode = false
-      loadIdleButton()
-    } else {
-      idleMode = true
-      loadIdleButton()
-    }
-  }
-
-  loadIdleHealthSlider() {
-    this.idleHealthSlider = new Slider('#idleRest', {
-      ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-      ticks_snap_bounds: 10,
-      value: 100
-    })
-  }
-
-  loadIdleManaSlider() {
-    this.idleManaSlider = new Slider('#idleMpRest', {
-      ticks: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-      ticks_snap_bounds: 10,
-      value: 100
-    })
-  }
-
-  loadIdleButton() {
-    if (this.idleMode) {
-      document.getElementById('idleSwitch').innerHTML =
-        '<button class="btn btn-success" onClick="system.toggleIdle()">Idle ON</button>'
-    } else {
-      document.getElementById('idleSwitch').innerHTML =
-        '<button class="btn btn-danger" onClick="system.toggleIdle()">Idle OFF</button>'
-    }
-  }
-
-  startTheEngine() {
-    this.loadAll()
-    this.loadIdleHealthSlider()
-    this.loadIdleManaSlider()
-    this.loadIdleButton()
-
-    player.loadPlayerScreen()
-    player.loadExploreButton()
-    player.loadRestButton()
-    spells.updateSpellbook()
-    upgrades.loadExcelia()
-    upgrades.updateUpgrades()
-    upgrades.loadTimeUpgrades()
-    buffs.updateTemporaryBuffs(false)
-    buffs.updateToggleableBuffs()
-    buffs.updatePermanentBuffs()
-
-    if (player.getInBattle()) {
-      monsters.loadMonsterInfo(monsters.getInstancedMonster())
-    }
-
-
-    inventory.updateInventoryHTML()
-    inventory.updateInventory()
-    inventory.updateEquipment()
-
-    this.gameSpeed(1000)
-
-    this.init = true
-    this.runGame()
+      player.loadPlayerScreen();
+      spells.updateSpellbook();
+      gameSystem.saveGameState();
+    }, this.refreshSpeed);
   }
 }
 
-loadComponent("components/inventoryTab.html", "inventoryTab");
-loadComponent("components/towerTab.html", "towerTab");
-loadComponent("components/upgradesTab.html", "upgradesTab");
-loadComponent("components/idleTab.html", "idleTab");
-loadComponent("components/towerTabC1.html", "towerTabC1");
-loadComponent("components/towerTabC2.html", "towerTabC2");
-loadComponent("components/battleScreen.html", "battleScreen");
-loadComponent("components/theTower.html", "theTower");
-loadComponent("components/statusScreen.html", "statusScreen");
-loadComponent("components/spellBook.html", "spellBook");
-loadComponent("components/spellEffects.html", "spellEffects");
-loadComponent("components/inventoryKeys.html", "inventoryKeys");
-loadComponent("components/equipmentLoot.html", "equipmentLoot");
-
-const system = new System()
-system.runGame()
-
+const gameSystem = new GameSystem();
+gameSystem.initialize()
+  .then(() => debugLog("Game fully initialized."))
+  .catch((error) => debugError("Initialization encountered an error:", error));
+window.gameSystem = gameSystem;

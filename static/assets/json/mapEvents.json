@@ -1,0 +1,25 @@
+{
+    "events": [
+      {
+        "chance": 40,
+        "type": "treasure",
+        "classification": "good"
+      },
+      {
+        "chance": 60,
+        "type": "ambush",
+        "classification": "bad"
+      },
+      {
+        "chance": 80,
+        "type": "ally",
+        "classification": "bad"
+      },
+      {
+        "chance": 100,
+        "type": "boss",
+        "classification": "bad"
+      }
+    ]
+  }
+  

@@ -1,142 +1,72 @@
-var characterBuffs = (function () {
-	let properties = {
-		CastFireballInBattle: false,
-		RageTimeLeft: 0,
-		SpellLevelingMultiplier: 1,
-		BarrierLeft: 0,
-		AegisTimeLeft: 0,
-		CastCureInBattle: false,
-		ExceliaMultiplier: 1,
-		ManaPerSecond: 0,
-		ExceliaSavedOnDeath: 0,
-		RestingMultiplier: 1,
-		DeathPenaltyReduction: 0,
-		AutoBarrierCast: false,
-		LevelingSpeedMultiplier: 1,
-		ExplorationSpeedMultiplier: 1
-	};
-
-	return {
-		get: function (propertyName) {
-			return properties[propertyName];
-		},
-		set: function (propertyName, value) {
-			properties[propertyName] = value;
-		}
-	};
-})();
-
-
 class Buffs {
     constructor() {
-        // Multipliers
-        this.exceliaMultiplier = 1;
-        this.spellLevelingMultiplier = 1;
-        this.restingMultiplier = 1;
-        this.levelingSpeedMultiplier = 1;
-        this.explorationSpeedMultiplier = 1;
-
-        // Adders
-        this.manaPerSecond = 0;
-
-        // Percenters
-        this.exceliaSavedOnDeath = 0;
-        this.deathPenaltyReduction = 0;
-
-        // Toggleables
-        this.castCureInBattle = false;
-        this.castFireballInBattle = false;
-        this.autoBarrierCast = false;
-
-        // Timed Buffs
-        this.aegisTimeLeft = 0;
-        this.rageTimeLeft = 0;
-
-        // Non-timed Temporary Buffs
-        this.barrierLeft = 0;
-
-        // Ensure methods are bound correctly
-        this.updateTemporaryBuffs = this.updateTemporaryBuffs.bind(this);
-        this.updateToggleableBuffs = this.updateToggleableBuffs.bind(this);
-        this.updatePermanentBuffs = this.updatePermanentBuffs.bind(this);
-        this.toggleBuff = this.toggleBuff.bind(this);
+        this.load();
     }
 
     save() {
-        const buffsSave = JSON.stringify(this);
-        localStorage.setItem("buffsSave", buffsSave);
+        const buffsSave = JSON.stringify(characterBuffs);
+        localStorage.setItem(STORAGE_KEYS.BUFFS, buffsSave);
     }
 
     load() {
-        const buffsSave = JSON.parse(localStorage.getItem("buffsSave"));
+        const buffsSave = JSON.parse(localStorage.getItem(STORAGE_KEYS.BUFFS));
         if (buffsSave) {
-            Object.assign(this, buffsSave);
+            Object.entries(buffsSave).forEach(([key, value]) => {
+                characterBuffs.set(key, value);
+            });
         }
     }
 
     updateTemporaryBuffs(decrease) {
         document.getElementById("temporary").innerHTML = '';
 
-        if (characterBuffs.get("AegisTimeLeft") !== 0) {
-            if (decrease) {
-                characterBuffs.set("AegisTimeLeft", characterBuffs.get("AegisTimeLeft") - 1);
+        ["AegisTimeLeft", "BarrierLeft", "RageTimeLeft"].forEach(buffName => {
+            let buffValue = characterBuffs.get(buffName);
+            if (buffValue !== 0) {
+                if (decrease && ["AegisTimeLeft", "RageTimeLeft"].includes(buffName)) {
+                    buffValue -= 1;
+                    characterBuffs.set(buffName, buffValue);
+                }
+                document.getElementById("temporary").innerHTML += `<li class="list-group-item list-group-item-info"><span class="badge">${Math.round(buffValue)}</span>${buffName}</li>`;
             }
-            document.getElementById("temporary").innerHTML += `<li class="list-group-item list-group-item-info"><span class="badge">${Math.round(characterBuffs.get("AegisTimeLeft"))}</span>Aegis</li>`;
-        }
-
-        if (characterBuffs.get("BarrierLeft") !== 0) {
-            document.getElementById("temporary").innerHTML += `<li class="list-group-item list-group-item-info"><span class="badge">${Math.round(characterBuffs.get("BarrierLeft"))}</span>Barrier</li>`;
-        }
-
-        if (characterBuffs.get("RageTimeLeft") !== 0) {
-            if (decrease) {
-                characterBuffs.set("RageTimeLeft", characterBuffs.get("RageTimeLeft") - 1);
-            }
-            document.getElementById("temporary").innerHTML += `<li class="list-group-item list-group-item-info"><span class="badge">${Math.round(characterBuffs.get("RageTimeLeft"))}</span>Rage</li>`;
-        }
+        });
     }
 
     updateToggleableBuffs() {
         document.getElementById("toggleable").innerHTML = '';
-        var toggleStatusText;
-
-        const updateButton = (condition, buffId, label) => {
-            if (condition) {
-                toggleStatusText = "ON";
-            } else {
-                toggleStatusText = "OFF";
-            }
-            document.getElementById("toggleable").innerHTML += `<button type="button" class="list-group-item" onClick="buffs.toggleBuff('${buffId}')"><span class="badge">${toggleStatusText}</span>${label}</button>`;
-        };
-
-        updateButton(this.castFireballInBattle || upgrades.isUpgradePurchased("autoshoot"), "castFireballInBattle", "Auto-Shooting");
-        updateButton(this.castCureInBattle || upgrades.isUpgradePurchased("battlehealing"), "castCureInBattle", "Battle Healing");
-        updateButton(this.autoBarrierCast || upgrades.isUpgradePurchased("barriercast"), "autoBarrierCast", "Barrier Casting");
+        ["CastFireballInBattle", "CastCureInBattle", "AutoBarrierCast"].forEach(buffName => {
+            const condition = characterBuffs.get(buffName);
+            const toggleStatusText = condition ? "ON" : "OFF";
+            const label = buffName.replace(/([A-Z])/g, ' $1').trim();
+            document.getElementById("toggleable").innerHTML += `<button type="button" class="list-group-item" onClick="buffs.toggleBuff('${buffName}')"><span class="badge">${toggleStatusText}</span>${label}</button>`;
+        });
     }
 
     updatePermanentBuffs() {
         document.getElementById("permanent").innerHTML = '';
-        const updateListItem = (condition, label, value, isMultiplier = false) => {
-            if (condition !== 0) {
-                const badgeText = isMultiplier ? `x${value}` : `+${value}`;
-                document.getElementById("permanent").innerHTML += `<li class="list-group-item"><span class="badge">${badgeText}</span>${label}</li>`;
-            }
-        };
+        const permanentBuffs = [
+            { name: "DeathPenaltyReduction", label: "Death Penalty Reduction", isPercentage: true },
+            { name: "ExceliaMultiplier", label: "Excelia Gain", isMultiplier: true },
+            { name: "ExceliaSavedOnDeath", label: "Excelia Saved Upon Death", isPercentage: true },
+            { name: "ManaPerSecond", label: "Exploration Mana per Second" },
+            { name: "ExplorationSpeedMultiplier", label: "Exploration Speed", isMultiplier: true },
+            { name: "RestingMultiplier", label: "Rest Speed", isMultiplier: true },
+            { name: "SpellLevelingMultiplier", label: "Spell Level Gain", isMultiplier: true },
+            { name: "LevelingSpeedMultiplier", label: "Stats Experience Gain", isMultiplier: true }
+        ];
 
-        updateListItem(this.deathPenaltyReduction !== 0, "Death Penalty Reduction", this.deathPenaltyReduction + '%');
-        updateListItem(this.exceliaMultiplier !== 1, "Excelia Gain", this.exceliaMultiplier, true);
-        updateListItem(this.exceliaSavedOnDeath !== 0, "Excelia Saved Upon Death", this.exceliaSavedOnDeath + '%');
-        updateListItem(this.manaPerSecond !== 0, "Exploration Mana per Second", this.manaPerSecond);
-        updateListItem(this.explorationSpeedMultiplier !== 1, "Exploration Speed", this.explorationSpeedMultiplier, true);
-        updateListItem(this.restingMultiplier !== 1, "Rest Speed", this.restingMultiplier, true);
-        updateListItem(this.spellLevelingMultiplier !== 1, "Spell Level Gain", this.spellLevelingMultiplier, true);
-        updateListItem(this.levelingSpeedMultiplier !== 1, "Stats Experience Gain", this.levelingSpeedMultiplier, true);
+        permanentBuffs.forEach(buff => {
+            const value = characterBuffs.get(buff.name);
+            if (value !== 0 && value !== 1) {
+                const badgeText = buff.isMultiplier ? `x${value}` : (buff.isPercentage ? `${value}%` : `+${value}`);
+                document.getElementById("permanent").innerHTML += `<li class="list-group-item"><span class="badge">${badgeText}</span>${buff.label}</li>`;
+            }
+        });
     }
 
     toggleBuff(buffId) {
-        this[buffId] = !this[buffId];
+        const current = characterBuffs.get(buffId);
+        characterBuffs.set(buffId, !current);
         this.updateToggleableBuffs();
     }
 }
-
-var buffs = new Buffs();
